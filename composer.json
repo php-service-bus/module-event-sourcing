@@ -1,0 +1,59 @@
+{
+  "name": "php-service-bus/module-event-sourcing",
+  "description": "Event Sourcing implementation module",
+  "type": "library",
+  "keywords": [
+    "async-php",
+    "command-bus",
+    "messaging",
+    "event-sourcing"
+  ],
+  "authors": [
+    {
+      "name": "Masiukevich Maksim",
+      "email": "dev@async-php.com",
+      "homepage": "https://github.com/mmasiukevich",
+      "role": "Maintainer"
+    }
+  ],
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "ServiceBus\\EventSourcingModule\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "ServiceBus\\Common\\Tests\\": "vendor/php-service-bus/common/tests/",
+      "ServiceBus\\MessageSerializer\\Tests\\": "vendor/php-service-bus/message-serializer/tests/",
+      "ServiceBus\\Storage\\Common\\Tests\\": "vendor/php-service-bus/storage-common/tests/",
+      "ServiceBus\\Storage\\Sql\\Tests\\": "vendor/php-service-bus/storage-sql/tests/",
+      "ServiceBus\\EventSourcing\\Tests\\": "vendor/php-service-bus/event-sourcing/tests/",
+      "ServiceBus\\EventSourcingModule\\Tests\\": "tests/"
+    }
+  },
+  "require": {
+    "php": ">=7.2",
+    "php-service-bus/event-sourcing": "dev-master"
+  },
+  "require-dev": {
+    "php-service-bus/storage-sql": "dev-master",
+    "symfony/dependency-injection": "^v4.2",
+    "doctrine/dbal": "^v2.6",
+    "phpunit/phpunit": "^7",
+    "vimeo/psalm": "dev-master"
+  },
+  "prefer-stable": true,
+  "minimum-stability": "dev",
+  "scripts": {
+    "psalm": "./vendor/bin/psalm --config=psalm.xml",
+    "phpunit": "./vendor/bin/phpunit --configuration phpunit.xml --verbose",
+    "coverage": "./vendor/bin/phpunit --configuration phpunit.xml --coverage-html ./coverage --verbose",
+    "test": [
+      "@phpunit"
+    ]
+  },
+  "config": {
+    "optimize-autoloader": true
+  }
+}
