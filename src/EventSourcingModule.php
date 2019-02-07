@@ -13,6 +13,7 @@ declare(strict_types = 1);
 namespace ServiceBus\EventSourcingModule;
 
 use ServiceBus\Common\Module\ServiceBusModule;
+use ServiceBus\EventSourcing\EventStream\EventStreamRepository;
 use ServiceBus\EventSourcing\EventStream\Store\EventStreamStore;
 use ServiceBus\EventSourcing\EventStream\Store\SqlEventStreamStore;
 use ServiceBus\EventSourcing\Indexes\Store\IndexStore;
@@ -122,7 +123,8 @@ final class EventSourcingModule implements ServiceBusModule
 
 
         $this->registerSnapshotter($containerBuilder);
-        $this->registerEventStreamRepository($containerBuilder);
+        $this->registerEventSourcingProvider($containerBuilder);
+        $this->registerIndexer($containerBuilder);
     }
 
     /**
@@ -130,18 +132,33 @@ final class EventSourcingModule implements ServiceBusModule
      *
      * @return void
      */
-    private function registerEventStreamRepository(ContainerBuilder $containerBuilder): void
+    private function registerIndexer(ContainerBuilder $containerBuilder): void
+    {
+        $containerBuilder->addDefinitions([
+            $this->indexerStore  => (new Definition(SqlIndexStore::class))->setArguments([new Reference($this->databaseAdapterServiceId)]),
+            IndexProvider::class => (new Definition(IndexProvider::class))->setArguments([new Reference($this->indexerStore)])
+        ]);
+    }
+
+    /**
+     * @param ContainerBuilder $containerBuilder
+     *
+     * @return void
+     */
+    private function registerEventSourcingProvider(ContainerBuilder $containerBuilder): void
     {
         $arguments = [
             new Reference($this->eventStoreServiceId),
             new Reference(Snapshotter::class),
             null !== $this->customEventSerializerServiceId
                 ? new Reference($this->customEventSerializerServiceId)
-                : null
+                : null,
+            new Reference('service_bus.logger')
         ];
 
         $containerBuilder->addDefinitions([
-            EventSourcingProvider::class => (new Definition(EventSourcingProvider::class))->setArguments($arguments)
+            EventStreamRepository::class => (new Definition(EventStreamRepository::class))->setArguments($arguments),
+            EventSourcingProvider::class => (new Definition(EventSourcingProvider::class))->setArguments([new Reference(EventStreamRepository::class)])
         ]);
     }
 

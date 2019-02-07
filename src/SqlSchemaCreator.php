@@ -17,7 +17,7 @@ use Amp\Promise;
 use ServiceBus\Storage\Common\DatabaseAdapter;
 
 /**
- *
+ * @codeCoverageIgnore
  */
 final class SqlSchemaCreator
 {

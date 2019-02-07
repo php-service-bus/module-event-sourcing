@@ -26,11 +26,13 @@ use ServiceBus\EventSourcing\Tests\stubs\TestAggregate;
 use ServiceBus\EventSourcing\Tests\stubs\TestAggregateId;
 use ServiceBus\EventSourcingModule\EventSourcingProvider;
 use ServiceBus\EventSourcingModule\Exceptions\DuplicateAggregate;
+use ServiceBus\EventSourcingModule\Exceptions\RevertAggregateVersionFailed;
 use ServiceBus\EventSourcingModule\SqlSchemaCreator;
 use ServiceBus\EventSourcingModule\Tests\stubs\Context;
 use ServiceBus\Storage\Common\DatabaseAdapter;
 use ServiceBus\Storage\Common\StorageConfiguration;
 use ServiceBus\Storage\Sql\AmpPosgreSQL\AmpPostgreSQLAdapter;
+use function ServiceBus\Storage\Sql\fetchOne;
 
 /**
  *
@@ -171,5 +173,97 @@ final class EventSourcingProviderTest extends TestCase
 
         wait($this->eventSourcingProvider->save(new TestAggregate($id), $context));
         wait($this->eventSourcingProvider->save(new TestAggregate($id), $context));
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     *
+     * @throws \Throwable
+     */
+    public function successHardDeleteRevert(): void
+    {
+        $context   = new Context();
+        $aggregate = new TestAggregate(TestAggregateId::new());
+
+        wait($this->eventSourcingProvider->save($aggregate, $context));
+
+        foreach(\range(1, 6) as $item)
+        {
+            $aggregate->firstAction($item + 1 . ' event');
+        }
+
+        /** 7 aggregate version */
+        wait($this->eventSourcingProvider->save($aggregate, $context));
+
+        /** 7 aggregate version */
+        static::assertEquals(7, $aggregate->version());
+        static::assertEquals('7 event', $aggregate->firstValue());
+
+        /** @var TestAggregate $aggregate */
+        $aggregate = wait(
+            $this->eventSourcingProvider->revert(
+                $aggregate, 5, EventStreamRepository::REVERT_MODE_DELETE
+            )
+        );
+
+        /** 7 aggregate version */
+        static::assertEquals(5, $aggregate->version());
+        static::assertEquals('5 event', $aggregate->firstValue());
+
+        $eventsCount = wait(
+            fetchOne(
+                wait(self::$adapter->execute('SELECT COUNT(id) as cnt FROM event_store_stream_events'))
+            )
+        );
+
+        static::assertEquals(5, $eventsCount['cnt']);
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     *
+     * @throws \Throwable
+     */
+    public function revertUnknownStream(): void
+    {
+        $this->expectException(RevertAggregateVersionFailed::class);
+
+        wait(
+            $this->eventSourcingProvider->revert(
+                new TestAggregate(TestAggregateId::new()), 20)
+        );
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     *
+     * @throws \Throwable
+     */
+    public function revertWithVersionConflict(): void
+    {
+        $this->expectException(RevertAggregateVersionFailed::class);
+
+        $context   = new Context();
+        $aggregate = new TestAggregate(TestAggregateId::new());
+
+        $aggregate->firstAction('qwerty');
+        $aggregate->firstAction('root');
+        $aggregate->firstAction('qwertyRoot');
+
+        wait($this->eventSourcingProvider->save($aggregate, $context));
+
+        /** @var TestAggregate $aggregate */
+        $aggregate = wait($this->eventSourcingProvider->revert($aggregate, 2));
+
+        $aggregate->firstAction('abube');
+
+        wait($this->eventSourcingProvider->save($aggregate, $context));
+        wait($this->eventSourcingProvider->revert($aggregate, 3));
     }
 }
