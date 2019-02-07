@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.org/php-service-bus/module-event-sourcing.svg?branch=master)](https://travis-ci.org/php-service-bus/module-event-sourcing)
-[![Code Coverage](https://scrutinizer-ci.com/g/php-service-bus/module-event-sourcing/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/php-service-bus/module-event-sourcing/?branch=master)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/php-service-bus/module-event-sourcing/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/php-service-bus/module-event-sourcing/?branch=master)
+[![Build Status](https://travis-ci.org/php-service-bus/module-event-sourcing.svg?branch=v3.0)](https://travis-ci.org/php-service-bus/module-event-sourcing)
+[![Code Coverage](https://scrutinizer-ci.com/g/php-service-bus/module-event-sourcing/badges/coverage.png?b=v3.0)](https://scrutinizer-ci.com/g/php-service-bus/module-event-sourcing/?branch=v3.0)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/php-service-bus/module-event-sourcing/badges/quality-score.png?b=v3.0)](https://scrutinizer-ci.com/g/php-service-bus/module-event-sourcing/?branch=v3.0)
 
 Table of contents
 * [What is Event Sourcing?](https://github.com/php-service-bus/module-event-sourcing#what-is-event-sourcing)
@@ -76,11 +76,11 @@ final class Customer extends Aggregate
 ```
 #### Available methods
 While using the aggregate the following secure methods are available:
-* [close()](https://github.com/php-service-bus/event-sourcing/blob/master/src/Aggregate.php#L150): A soft delete analogue. We do not delete the event stream, we just tag it as closed. A closed stream cannot be received, and hence modified
-* [raise()](https://github.com/php-service-bus/event-sourcing/blob/master/src/Aggregate.php#L120): Appliance of an event to an aggregate. Naming of event listeners follows an ```on{ClassName}``` pattern, where *on* is a prefix, *{ClassName}* – a basic name of event class.
+* [close()](https://github.com/php-service-bus/event-sourcing/blob/v3.0/src/Aggregate.php#L150): A soft delete analogue. We do not delete the event stream, we just tag it as closed. A closed stream cannot be received, and hence modified
+* [raise()](https://github.com/php-service-bus/event-sourcing/blob/v3.0/src/Aggregate.php#L120): Appliance of an event to an aggregate. Naming of event listeners follows an ```on{ClassName}``` pattern, where *on* is a prefix, *{ClassName}* – a basic name of event class.
 
 #### Life cycle
-While creating a new aggregate event [AggregateCreated](https://github.com/php-service-bus/event-sourcing/blob/master/src/Contract/AggregateCreated.php) will be sent into transport;  when the aggregate is closed - [AggregateClosed](https://github.com/php-service-bus/event-sourcing/blob/master/src/Contract/AggregateClosed.php)
+While creating a new aggregate event [AggregateCreated](https://github.com/php-service-bus/event-sourcing/blob/v3.0/src/Contract/AggregateCreated.php) will be sent into transport;  when the aggregate is closed - [AggregateClosed](https://github.com/php-service-bus/event-sourcing/blob/v3.0/src/Contract/AggregateClosed.php)
 
 #### Installation
 ```bash
@@ -99,18 +99,18 @@ $bootstrap->applyModules($module);
 ```
 
 #### Working with aggregates
-[EventSourcingProvider](https://github.com/php-service-bus/module-event-sourcing/blob/master/src/EventSourcingProvider.php) is used to work with aggregates, which has the following methods  (the [Promise](https://github.com/amphp/amp/blob/master/lib/Promise.php) object is returned in each of them):
-* [load()](https://github.com/php-service-bus/module-event-sourcing/blob/master/src/EventSourcingProvider.php#L63): Load aggregate from database
-* [save()](https://github.com/php-service-bus/module-event-sourcing/blob/master/src/EventSourcingProvider.php#L106): Save a new aggregate
-* [revert()](https://github.com/php-service-bus/module-event-sourcing/blob/master/src/EventSourcingProvider.php#L175): Revert aggregate to specified version
+[EventSourcingProvider](https://github.com/php-service-bus/module-event-sourcing/blob/v3.0/src/EventSourcingProvider.php) is used to work with aggregates, which has the following methods  (the [Promise](https://github.com/amphp/amp/blob/v3.0/lib/Promise.php) object is returned in each of them):
+* [load()](https://github.com/php-service-bus/module-event-sourcing/blob/v3.0/src/EventSourcingProvider.php#L63): Load aggregate from database
+* [save()](https://github.com/php-service-bus/module-event-sourcing/blob/v3.0/src/EventSourcingProvider.php#L106): Save a new aggregate
+* [revert()](https://github.com/php-service-bus/module-event-sourcing/blob/v3.0/src/EventSourcingProvider.php#L175): Revert aggregate to specified version
 
 #### Working with indexes
-To work with indexes, use [IndexProvider](https://github.com/php-service-bus/module-event-sourcing/blob/master/src/IndexProvider.php), which has the following methods  (the [Promise](https://github.com/amphp/amp/blob/master/lib/Promise.php) object is returned in each of them):
-* [get()](https://github.com/php-service-bus/module-event-sourcing/blob/master/src/IndexProvider.php#L53): Receive a saved value
-* [has()](https://github.com/php-service-bus/module-event-sourcing/blob/master/src/IndexProvider.php#L90): Was a value saved
-* [add()](https://github.com/php-service-bus/module-event-sourcing/blob/master/src/IndexProvider.php#L128): Add a value to index. Working principle is similar to the ```\Memcached:add```: method, if values with such a keyword didn’t exist it will return «true», otherwise - «false» (best choice)
-* [remove()](https://github.com/php-service-bus/module-event-sourcing/blob/master/src/IndexProvider.php#L168): Delete saved value
-* [update()](https://github.com/php-service-bus/module-event-sourcing/blob/master/src/IndexProvider.php#L200): Update saved value
+To work with indexes, use [IndexProvider](https://github.com/php-service-bus/module-event-sourcing/blob/v3.0/src/IndexProvider.php), which has the following methods  (the [Promise](https://github.com/amphp/amp/blob/v3.0/lib/Promise.php) object is returned in each of them):
+* [get()](https://github.com/php-service-bus/module-event-sourcing/blob/v3.0/src/IndexProvider.php#L53): Receive a saved value
+* [has()](https://github.com/php-service-bus/module-event-sourcing/blob/v3.0/src/IndexProvider.php#L90): Was a value saved
+* [add()](https://github.com/php-service-bus/module-event-sourcing/blob/v3.0/src/IndexProvider.php#L128): Add a value to index. Working principle is similar to the ```\Memcached:add```: method, if values with such a keyword didn’t exist it will return «true», otherwise - «false» (best choice)
+* [remove()](https://github.com/php-service-bus/module-event-sourcing/blob/v3.0/src/IndexProvider.php#L168): Delete saved value
+* [update()](https://github.com/php-service-bus/module-event-sourcing/blob/v3.0/src/IndexProvider.php#L200): Update saved value
 
 #### Working with snapshots
-By default only one strategy of snapshots generation is implemented - [SnapshotVersionTrigger](https://github.com/php-service-bus/event-sourcing/blob/master/src/Snapshots/Triggers/SnapshotVersionTrigger.php), which is based on versions (generates a snapshot every *N* version changes). Snapshots are created automatically, with an exclusion of strategy selection (you can implement your own snapshots with the help of  [SnapshotTrigger](https://github.com/php-service-bus/event-sourcing/blob/master/src/Snapshots/Triggers/SnapshotTrigger.php) interface) no setting is required
+By default only one strategy of snapshots generation is implemented - [SnapshotVersionTrigger](https://github.com/php-service-bus/event-sourcing/blob/v3.0/src/Snapshots/Triggers/SnapshotVersionTrigger.php), which is based on versions (generates a snapshot every *N* version changes). Snapshots are created automatically, with an exclusion of strategy selection (you can implement your own snapshots with the help of  [SnapshotTrigger](https://github.com/php-service-bus/event-sourcing/blob/v3.0/src/Snapshots/Triggers/SnapshotTrigger.php) interface) no setting is required

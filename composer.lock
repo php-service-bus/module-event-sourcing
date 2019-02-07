@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "cd701b12704781d4aefe22b3fff647e9",
-    "content-hash": "4b8eefbeaaeb2109a6ec84a46aa6971f",
+    "hash": "33582352bc138f3c2fd3fcf591662cde",
+    "content-hash": "7baedb2349407f72ffa9d8d5005b7101",
     "packages": [
         {
             "name": "amphp/amp",
@@ -252,16 +252,16 @@
         },
         {
             "name": "php-service-bus/common",
-            "version": "dev-master",
+            "version": "v3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/common.git",
-                "reference": "7945f503f01e94d083bfb3784e7717922b3ccbe4"
+                "reference": "4832b5b1cf702eac55edddfdb62325aa20d5ba11"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/common/zipball/7945f503f01e94d083bfb3784e7717922b3ccbe4",
-                "reference": "7945f503f01e94d083bfb3784e7717922b3ccbe4",
+                "url": "https://api.github.com/repos/php-service-bus/common/zipball/4832b5b1cf702eac55edddfdb62325aa20d5ba11",
+                "reference": "4832b5b1cf702eac55edddfdb62325aa20d5ba11",
                 "shasum": ""
             },
             "require": {
@@ -272,7 +272,7 @@
             "require-dev": {
                 "phpunit/phpunit": "^7",
                 "symfony/dependency-injection": "^v4.2",
-                "vimeo/psalm": "dev-master"
+                "vimeo/psalm": "^3"
             },
             "type": "library",
             "autoload": {
@@ -301,33 +301,33 @@
                 "command-bus",
                 "messaging"
             ],
-            "time": "2019-01-31 15:29:38"
+            "time": "2019-02-07 11:11:38"
         },
         {
             "name": "php-service-bus/event-sourcing",
-            "version": "dev-master",
+            "version": "v3.0.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/event-sourcing.git",
-                "reference": "8d4810c923a848e72230926a121186abebd7221d"
+                "reference": "ceeb4f87aa7e10728bb3fe0f2436f8817d5713db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/event-sourcing/zipball/8d4810c923a848e72230926a121186abebd7221d",
-                "reference": "8d4810c923a848e72230926a121186abebd7221d",
+                "url": "https://api.github.com/repos/php-service-bus/event-sourcing/zipball/ceeb4f87aa7e10728bb3fe0f2436f8817d5713db",
+                "reference": "ceeb4f87aa7e10728bb3fe0f2436f8817d5713db",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.2",
-                "php-service-bus/common": "dev-master",
-                "php-service-bus/message-serializer": "dev-master",
-                "php-service-bus/storage-common": "dev-master"
+                "php-service-bus/common": "^v3.0",
+                "php-service-bus/message-serializer": "^v3.0",
+                "php-service-bus/storage-common": "^v3.0"
             },
             "require-dev": {
                 "doctrine/dbal": "^v2.6",
-                "php-service-bus/storage-sql": "dev-master",
+                "php-service-bus/storage-sql": "^v3.0",
                 "phpunit/phpunit": "^7",
-                "vimeo/psalm": "dev-master"
+                "vimeo/psalm": "^v3"
             },
             "type": "library",
             "autoload": {
@@ -357,32 +357,32 @@
                 "event-sourcing",
                 "messaging"
             ],
-            "time": "2019-02-05 10:40:10"
+            "time": "2019-02-07 15:23:20"
         },
         {
             "name": "php-service-bus/message-serializer",
-            "version": "dev-master",
+            "version": "v3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/message-serializer.git",
-                "reference": "cb2b19c51dc67129293a06d5cff146bc2bf5325b"
+                "reference": "95b9fc7c5fc5615e7d505be7a960aa8cb094d4d5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/message-serializer/zipball/cb2b19c51dc67129293a06d5cff146bc2bf5325b",
-                "reference": "cb2b19c51dc67129293a06d5cff146bc2bf5325b",
+                "url": "https://api.github.com/repos/php-service-bus/message-serializer/zipball/95b9fc7c5fc5615e7d505be7a960aa8cb094d4d5",
+                "reference": "95b9fc7c5fc5615e7d505be7a960aa8cb094d4d5",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
                 "php": ">=7.2",
-                "php-service-bus/common": "dev-master",
+                "php-service-bus/common": "^v3.0",
                 "symfony/serializer-pack": "^v1"
             },
             "require-dev": {
                 "ext-iconv": "*",
                 "phpunit/phpunit": "^7",
-                "vimeo/psalm": "dev-master"
+                "vimeo/psalm": "^3"
             },
             "type": "library",
             "autoload": {
@@ -408,20 +408,20 @@
                 "command-bus",
                 "messaging"
             ],
-            "time": "2019-02-01 08:56:15"
+            "time": "2019-02-07 12:52:54"
         },
         {
             "name": "php-service-bus/storage-common",
-            "version": "dev-master",
+            "version": "v3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/storage-common.git",
-                "reference": "aa05c6297c92d3e458f2ecaa433f7ea537d4285f"
+                "reference": "276d1f37699b0cbf028b3077b0d8d4ba8b2d20a6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/storage-common/zipball/aa05c6297c92d3e458f2ecaa433f7ea537d4285f",
-                "reference": "aa05c6297c92d3e458f2ecaa433f7ea537d4285f",
+                "url": "https://api.github.com/repos/php-service-bus/storage-common/zipball/276d1f37699b0cbf028b3077b0d8d4ba8b2d20a6",
+                "reference": "276d1f37699b0cbf028b3077b0d8d4ba8b2d20a6",
                 "shasum": ""
             },
             "require": {
@@ -430,7 +430,7 @@
             "require-dev": {
                 "amphp/amp": "^2",
                 "phpunit/phpunit": "^7",
-                "vimeo/psalm": "dev-master"
+                "vimeo/psalm": "^3"
             },
             "type": "library",
             "autoload": {
@@ -456,7 +456,7 @@
                 "command-bus",
                 "messaging"
             ],
-            "time": "2019-01-31 16:50:19"
+            "time": "2019-02-07 11:21:00"
         },
         {
             "name": "phpdocumentor/reflection-common",
@@ -2173,16 +2173,16 @@
         },
         {
             "name": "php-service-bus/storage-sql",
-            "version": "dev-master",
+            "version": "v3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/storage-sql.git",
-                "reference": "823d0c09cd2541914d9582b73dca1cfeddc50d6a"
+                "reference": "3511bbaf9ebfcb68b607369e6eb96934e6542e0b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/storage-sql/zipball/823d0c09cd2541914d9582b73dca1cfeddc50d6a",
-                "reference": "823d0c09cd2541914d9582b73dca1cfeddc50d6a",
+                "url": "https://api.github.com/repos/php-service-bus/storage-sql/zipball/3511bbaf9ebfcb68b607369e6eb96934e6542e0b",
+                "reference": "3511bbaf9ebfcb68b607369e6eb96934e6542e0b",
                 "shasum": ""
             },
             "require": {
@@ -2190,13 +2190,13 @@
                 "ext-pgsql": "*",
                 "latitude/latitude": "^3.1",
                 "php": ">=7.2",
-                "php-service-bus/storage-common": "dev-master",
+                "php-service-bus/storage-common": "^v3.0",
                 "psr/log": "1.1.*"
             },
             "require-dev": {
                 "doctrine/dbal": "^v2.6",
                 "phpunit/phpunit": "^7",
-                "vimeo/psalm": "dev-master"
+                "vimeo/psalm": "^3"
             },
             "type": "library",
             "autoload": {
@@ -2229,7 +2229,7 @@
                 "postgresql",
                 "sql"
             ],
-            "time": "2019-01-31 17:11:40"
+            "time": "2019-02-07 11:36:23"
         },
         {
             "name": "phpspec/prophecy",
@@ -2548,16 +2548,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "7.5.3",
+            "version": "7.5.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "2cb759721e53bc05f56487f628c6b9fbb6c18746"
+                "reference": "2896657da5fb237bc316bdfc18c2650efeee0dc0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/2cb759721e53bc05f56487f628c6b9fbb6c18746",
-                "reference": "2cb759721e53bc05f56487f628c6b9fbb6c18746",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/2896657da5fb237bc316bdfc18c2650efeee0dc0",
+                "reference": "2896657da5fb237bc316bdfc18c2650efeee0dc0",
                 "shasum": ""
             },
             "require": {
@@ -2628,7 +2628,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2019-02-01 05:24:07"
+            "time": "2019-02-07 14:15:04"
         },
         {
             "name": "psr/container",
@@ -3666,7 +3666,7 @@
         },
         {
             "name": "vimeo/psalm",
-            "version": "dev-master",
+            "version": "3.0.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vimeo/psalm.git",
@@ -3837,11 +3837,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "php-service-bus/event-sourcing": 20,
-        "php-service-bus/storage-sql": 20,
-        "vimeo/psalm": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
