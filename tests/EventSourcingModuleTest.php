@@ -45,7 +45,7 @@ final class EventSourcingModuleTest extends TestCase
             'service_bus.logger'        => new Definition(NullLogger::class)
         ]);
 
-        $module = EventSourcingModule::createSqlStore(DatabaseAdapter::class);
+        $module = EventSourcingModule::withSqlStorage(DatabaseAdapter::class);
         $module->boot($containerBuilder);
 
         $containerBuilder->getDefinition(IndexProvider::class)->setPublic(true);

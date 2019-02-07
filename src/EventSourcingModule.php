@@ -67,7 +67,7 @@ final class EventSourcingModule implements ServiceBusModule
      *
      * @return self
      */
-    public static function createSqlStore(string $databaseAdapterServiceId): self
+    public static function withSqlStorage(string $databaseAdapterServiceId): self
     {
         $self = new self(
             EventStreamStore::class,
