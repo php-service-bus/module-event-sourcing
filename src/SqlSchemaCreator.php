@@ -23,16 +23,16 @@ final class SqlSchemaCreator
 {
     private const FIXTURES = [
         /** common fixtures */
-        __DIR__ . '/../vendor/php-service-bus/event-sourcing/src/EventStream/Store/schema/extensions.sql'                => false,
+        '/src/EventStream/Store/schema/extensions.sql'                => false,
         /** event streams */
-        __DIR__ . '/../vendor/php-service-bus/event-sourcing/src/EventStream/Store/schema/event_store_stream.sql'        => false,
-        __DIR__ . '/../vendor/php-service-bus/event-sourcing/src/EventStream/Store/schema/event_store_stream_events.sql' => false,
-        __DIR__ . '/../vendor/php-service-bus/event-sourcing/src/EventStream/Store/schema/indexes.sql'                   => true,
+        '/src/EventStream/Store/schema/event_store_stream.sql'        => false,
+        '/src/EventStream/Store/schema/event_store_stream_events.sql' => false,
+        '/src/EventStream/Store/schema/indexes.sql'                   => true,
         /** snapshots */
-        __DIR__ . '/../vendor/php-service-bus/event-sourcing/src/Snapshots/Store/schema/event_store_snapshots.sql'       => false,
-        __DIR__ . '/../vendor/php-service-bus/event-sourcing/src/Snapshots/Store/schema/indexes.sql'                     => true,
+        '/src/Snapshots/Store/schema/event_store_snapshots.sql'       => false,
+        '/src/Snapshots/Store/schema/indexes.sql'                     => true,
         /** indexer */
-        __DIR__ . '/../vendor/php-service-bus/event-sourcing/src/Indexes/Store/schema/event_sourcing_indexes.sql'        => false,
+        '/src/Indexes/Store/schema/event_sourcing_indexes.sql'        => false,
     ];
 
     /**
@@ -41,11 +41,18 @@ final class SqlSchemaCreator
     private $adapter;
 
     /**
-     * @param DatabaseAdapter $adapter
+     * @var string
      */
-    public function __construct(DatabaseAdapter $adapter)
+    private $rootDirectoryPath;
+
+    /**
+     * @param DatabaseAdapter $adapter
+     * @param string          $rootDirectoryPath
+     */
+    public function __construct(DatabaseAdapter $adapter, string $rootDirectoryPath)
     {
-        $this->adapter = $adapter;
+        $this->adapter           = $adapter;
+        $this->rootDirectoryPath = \rtrim($rootDirectoryPath, '/');
     }
 
     /**
@@ -65,6 +72,8 @@ final class SqlSchemaCreator
                  */
                 foreach($fixtures as $filePath => $multipleQueries)
                 {
+                    $filePath = $this->rootDirectoryPath . $filePath;
+
                     $queries = true === $multipleQueries
                         ? \array_map('trim', \file($filePath))
                         : [(string) \file_get_contents($filePath)];
