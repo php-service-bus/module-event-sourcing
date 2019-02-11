@@ -58,7 +58,7 @@ final class IndexProviderTest extends TestCase
             new StorageConfiguration((string) \getenv('TEST_POSTGRES_DSN'))
         );
 
-        wait((new SqlSchemaCreator(self::$adapter, \realpath(__DIR__ . '/../')))->import());
+        wait((new SqlSchemaCreator(self::$adapter, \realpath(__DIR__ . '/../vendor/php-service-bus/event-sourcing/')))->import());
     }
 
     /**
