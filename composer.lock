@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "232b493f535ef99256314ec43ce14d61",
-    "content-hash": "b33f4fd26caeca6512513989928c87fe",
+    "hash": "b694fab0191382fdafa996fc623cbb9f",
+    "content-hash": "bf90bbef212ba7c6cfa2505d47edf4c3",
     "packages": [
         {
             "name": "amphp/amp",
@@ -252,16 +252,16 @@
         },
         {
             "name": "php-service-bus/common",
-            "version": "v3.0.x-dev",
+            "version": "v3.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/common.git",
-                "reference": "d3b1b081a08e2656dcdb4ccb242b4e18abe74bdf"
+                "reference": "2290f2e66b7ea0718a7afccdbcc4d7928e001205"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/common/zipball/d3b1b081a08e2656dcdb4ccb242b4e18abe74bdf",
-                "reference": "d3b1b081a08e2656dcdb4ccb242b4e18abe74bdf",
+                "url": "https://api.github.com/repos/php-service-bus/common/zipball/2290f2e66b7ea0718a7afccdbcc4d7928e001205",
+                "reference": "2290f2e66b7ea0718a7afccdbcc4d7928e001205",
                 "shasum": ""
             },
             "require": {
@@ -301,31 +301,31 @@
                 "command-bus",
                 "messaging"
             ],
-            "time": "2019-02-26 07:22:23"
+            "time": "2019-02-26 13:01:39"
         },
         {
             "name": "php-service-bus/event-sourcing",
-            "version": "v3.0.x-dev",
+            "version": "v3.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/event-sourcing.git",
-                "reference": "a7a97eb6ee2dee6f18404c9444919a0387be0048"
+                "reference": "2d96b5c0bd578cefdd5f5ae3927612a00c12ac6b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/event-sourcing/zipball/a7a97eb6ee2dee6f18404c9444919a0387be0048",
-                "reference": "a7a97eb6ee2dee6f18404c9444919a0387be0048",
+                "url": "https://api.github.com/repos/php-service-bus/event-sourcing/zipball/2d96b5c0bd578cefdd5f5ae3927612a00c12ac6b",
+                "reference": "2d96b5c0bd578cefdd5f5ae3927612a00c12ac6b",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.2",
-                "php-service-bus/common": "v3.0.x-dev",
-                "php-service-bus/message-serializer": "v3.0.x-dev",
-                "php-service-bus/storage-common": "v3.0.x-dev"
+                "php-service-bus/common": "v3.0.7",
+                "php-service-bus/message-serializer": "v3.0.7",
+                "php-service-bus/storage-common": "v3.0.7"
             },
             "require-dev": {
                 "doctrine/dbal": "^v2.6",
-                "php-service-bus/storage-sql": "v3.0.x-dev",
+                "php-service-bus/storage-sql": "v3.0.7",
                 "phpunit/phpunit": "^8",
                 "vimeo/psalm": "^v3"
             },
@@ -357,26 +357,26 @@
                 "event-sourcing",
                 "messaging"
             ],
-            "time": "2019-02-26 10:24:21"
+            "time": "2019-02-26 13:33:24"
         },
         {
             "name": "php-service-bus/message-serializer",
-            "version": "v3.0.x-dev",
+            "version": "v3.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/message-serializer.git",
-                "reference": "c89c3d0b9322c05937cc849b2196372073226b52"
+                "reference": "c4cab83ef8ac2e79e65f8d95f10b36d7e182f94f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/message-serializer/zipball/c89c3d0b9322c05937cc849b2196372073226b52",
-                "reference": "c89c3d0b9322c05937cc849b2196372073226b52",
+                "url": "https://api.github.com/repos/php-service-bus/message-serializer/zipball/c4cab83ef8ac2e79e65f8d95f10b36d7e182f94f",
+                "reference": "c4cab83ef8ac2e79e65f8d95f10b36d7e182f94f",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
                 "php": ">=7.2",
-                "php-service-bus/common": "v3.0.x-dev",
+                "php-service-bus/common": "v3.0.7",
                 "symfony/serializer-pack": "^v1"
             },
             "require-dev": {
@@ -408,20 +408,20 @@
                 "command-bus",
                 "messaging"
             ],
-            "time": "2019-02-26 07:28:46"
+            "time": "2019-02-26 13:10:37"
         },
         {
             "name": "php-service-bus/storage-common",
-            "version": "v3.0.x-dev",
+            "version": "v3.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/storage-common.git",
-                "reference": "fb8126e830023bcaf274b48334cf2690e0837003"
+                "reference": "1a2b6a8e1a17bbe2fddd64aa37dc29611069bc07"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/storage-common/zipball/fb8126e830023bcaf274b48334cf2690e0837003",
-                "reference": "fb8126e830023bcaf274b48334cf2690e0837003",
+                "url": "https://api.github.com/repos/php-service-bus/storage-common/zipball/1a2b6a8e1a17bbe2fddd64aa37dc29611069bc07",
+                "reference": "1a2b6a8e1a17bbe2fddd64aa37dc29611069bc07",
                 "shasum": ""
             },
             "require": {
@@ -456,7 +456,7 @@
                 "command-bus",
                 "messaging"
             ],
-            "time": "2019-02-21 15:07:42"
+            "time": "2019-02-26 13:21:45"
         },
         {
             "name": "phpdocumentor/reflection-common",
@@ -2232,16 +2232,16 @@
         },
         {
             "name": "php-service-bus/storage-sql",
-            "version": "v3.0.x-dev",
+            "version": "v3.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/storage-sql.git",
-                "reference": "7235ea9406988955f30ac406657412adf3af5e0c"
+                "reference": "fa2f5f0587fed0a91fdc82b3a740bb2511119854"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/storage-sql/zipball/7235ea9406988955f30ac406657412adf3af5e0c",
-                "reference": "7235ea9406988955f30ac406657412adf3af5e0c",
+                "url": "https://api.github.com/repos/php-service-bus/storage-sql/zipball/fa2f5f0587fed0a91fdc82b3a740bb2511119854",
+                "reference": "fa2f5f0587fed0a91fdc82b3a740bb2511119854",
                 "shasum": ""
             },
             "require": {
@@ -2249,7 +2249,7 @@
                 "ext-pgsql": "*",
                 "latitude/latitude": "^3.1",
                 "php": ">=7.2",
-                "php-service-bus/storage-common": "^v3.0",
+                "php-service-bus/storage-common": "v3.0.7",
                 "psr/log": "1.1.*"
             },
             "require-dev": {
@@ -2288,7 +2288,7 @@
                 "postgresql",
                 "sql"
             ],
-            "time": "2019-02-22 08:02:49"
+            "time": "2019-02-26 13:24:26"
         },
         {
             "name": "phpspec/prophecy",
@@ -3838,10 +3838,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "php-service-bus/event-sourcing": 20,
-        "php-service-bus/storage-sql": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

@@ -34,10 +34,10 @@
   },
   "require": {
     "php": ">=7.2",
-    "php-service-bus/event-sourcing": "v3.0.x-dev"
+    "php-service-bus/event-sourcing": "v3.0.7"
   },
   "require-dev": {
-    "php-service-bus/storage-sql": "v3.0.x-dev",
+    "php-service-bus/storage-sql": "v3.0.7",
     "symfony/dependency-injection": "^v4.2",
     "doctrine/dbal": "^v2.6",
     "phpunit/phpunit": "^8",
