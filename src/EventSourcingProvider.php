@@ -37,7 +37,8 @@ final class EventSourcingProvider
     /**
      * List of loaded/added aggregates
      *
-     * @var array<string, string>
+     * @psalm-var array<string, string>
+     * @var array
      */
     private $aggregates = [];
 
@@ -116,7 +117,8 @@ final class EventSourcingProvider
                     {
                         /**
                          * @psalm-suppress TooManyTemplateParams Wrong Promise template
-                         * @var array<int, \ServiceBus\Common\Messages\Event> $events
+                         * @psalm-var      array<int, object> $events
+                         * @var object[] $events
                          */
                         $events = yield $this->repository->save($aggregate);
 
@@ -126,14 +128,15 @@ final class EventSourcingProvider
                     {
                         /**
                          * @psalm-suppress TooManyTemplateParams Wrong Promise template
-                         * @var array<int, \ServiceBus\Common\Messages\Event> $events
+                         * @psalm-var      array<int, object> $events
+                         * @var object[] $events
                          */
                         $events = yield $this->repository->update($aggregate);
                     }
 
                     $promises = [];
 
-                    /** @var \ServiceBus\Common\Messages\Event $event */
+                    /** @var object $event */
                     foreach($events as $event)
                     {
                         $promises[] = $context->delivery($event);
@@ -158,10 +161,11 @@ final class EventSourcingProvider
      * Revert aggregate to specified version
      *
      * Mode options:
-     *   - 1 (EventStreamRepository::REVERT_MODE_SOFT_DELETE): Mark tail events as deleted (soft deletion). There may be version conflicts in some situations
+     *   - 1 (EventStreamRepository::REVERT_MODE_SOFT_DELETE): Mark tail events as deleted (soft deletion). There may
+     *   be version conflicts in some situations
      *   - 2 (EventStreamRepository::REVERT_MODE_DELETE): Removes tail events from the database (the best option)
      *
-     * @noinspection PhpDocRedundantThrowsInspection
+     * @noinspection   PhpDocRedundantThrowsInspection
      * @psalm-suppress MixedTypeCoercion Incorrect resolving the value of the promise
      *
      * @param Aggregate $aggregate
