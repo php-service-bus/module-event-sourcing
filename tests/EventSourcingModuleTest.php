@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Event Sourcing implementation module
+ * Event Sourcing implementation module.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -32,9 +32,9 @@ final class EventSourcingModuleTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function createSqlStore(): void
     {
@@ -42,7 +42,7 @@ final class EventSourcingModuleTest extends TestCase
         $containerBuilder->addDefinitions([
             StorageConfiguration::class => (new Definition(StorageConfiguration::class))->setArguments(['sqlite:///:memory:']),
             DatabaseAdapter::class      => (new Definition(DoctrineDBALAdapter::class))->setArguments([new Reference(StorageConfiguration::class)]),
-            'service_bus.logger'        => new Definition(NullLogger::class)
+            'service_bus.logger'        => new Definition(NullLogger::class),
         ]);
 
         $module = EventSourcingModule::withSqlStorage(DatabaseAdapter::class);
@@ -55,6 +55,5 @@ final class EventSourcingModuleTest extends TestCase
 
         $containerBuilder->get(EventSourcingProvider::class);
         $containerBuilder->get(IndexProvider::class);
-
     }
 }

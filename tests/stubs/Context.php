@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Event Sourcing implementation module
+ * Event Sourcing implementation module.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -12,12 +12,12 @@ declare(strict_types = 1);
 
 namespace ServiceBus\EventSourcingModule\Tests\stubs;
 
+use function ServiceBus\Common\uuid;
 use Amp\Promise;
 use Amp\Success;
 use Psr\Log\LogLevel;
 use ServiceBus\Common\Context\ServiceBusContext;
 use ServiceBus\Common\Endpoint\DeliveryOptions;
-use function ServiceBus\Common\uuid;
 
 /**
  *
@@ -27,7 +27,7 @@ final class Context implements ServiceBusContext
     public $messages = [];
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function isValid(): bool
     {
@@ -35,7 +35,7 @@ final class Context implements ServiceBusContext
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function violations(): array
     {
@@ -43,7 +43,7 @@ final class Context implements ServiceBusContext
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function delivery(object $message, ?DeliveryOptions $deliveryOptions = null): Promise
     {
@@ -53,7 +53,7 @@ final class Context implements ServiceBusContext
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function logContextMessage(string $logMessage, array $extra = [], string $level = LogLevel::INFO): void
     {
@@ -61,7 +61,7 @@ final class Context implements ServiceBusContext
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function logContextThrowable(\Throwable $throwable, string $level = LogLevel::ERROR, array $extra = []): void
     {
@@ -69,7 +69,15 @@ final class Context implements ServiceBusContext
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
+     */
+    public function headers(): array
+    {
+        return [];
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function operationId(): string
     {
@@ -77,7 +85,7 @@ final class Context implements ServiceBusContext
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function traceId(): string
     {

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Event Sourcing implementation module
+ * Event Sourcing implementation module.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT

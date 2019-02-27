@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Event Sourcing implementation module
+ * Event Sourcing implementation module.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -39,16 +39,16 @@ final class IndexProvider
     }
 
     /**
-     * Receive index value
+     * Receive index value.
      *
      * @noinspection PhpDocRedundantThrowsInspection
      * @psalm-suppress MixedTypeCoercion Incorrect resolving the value of the promise
      *
      * @param IndexKey $indexKey
      *
-     * @return Promise<\ServiceBus\EventSourcing\Indexes\IndexValue|null>
-     *
      * @throws \ServiceBus\EventSourcingModule\Exceptions\IndexOperationFailed
+     *
+     * @return Promise<\ServiceBus\EventSourcing\Indexes\IndexValue|null>
      */
     public function get(IndexKey $indexKey): Promise
     {
@@ -60,13 +60,14 @@ final class IndexProvider
                 {
                     /**
                      * @psalm-suppress TooManyTemplateParams Wrong Promise template
+                     *
                      * @var IndexValue|null $value
                      */
                     $value = yield $this->store->find($indexKey);
 
                     return $value;
                 }
-                catch(\Throwable $throwable)
+                catch (\Throwable $throwable)
                 {
                     throw IndexOperationFailed::fromThrowable($throwable);
                 }
@@ -76,16 +77,16 @@ final class IndexProvider
     }
 
     /**
-     * Is there a value in the index
+     * Is there a value in the index.
      *
      * @noinspection PhpDocRedundantThrowsInspection
      * @psalm-suppress MixedTypeCoercion Incorrect resolving the value of the promise
      *
      * @param IndexKey $indexKey
      *
-     * @return Promise<bool>
-     *
      * @throws \ServiceBus\EventSourcingModule\Exceptions\IndexOperationFailed
+     *
+     * @return Promise<bool>
      */
     public function has(IndexKey $indexKey): Promise
     {
@@ -97,13 +98,14 @@ final class IndexProvider
                 {
                     /**
                      * @psalm-suppress TooManyTemplateParams Wrong Promise template
+                     *
                      * @var IndexValue|null $value
                      */
                     $value = yield $this->store->find($indexKey);
 
                     return null !== $value;
                 }
-                catch(\Throwable $throwable)
+                catch (\Throwable $throwable)
                 {
                     throw IndexOperationFailed::fromThrowable($throwable);
                 }
@@ -113,7 +115,7 @@ final class IndexProvider
     }
 
     /**
-     * Add a value to the index. If false, then the value already exists
+     * Add a value to the index. If false, then the value already exists.
      *
      * @noinspection PhpDocRedundantThrowsInspection
      * @psalm-suppress MixedTypeCoercion Incorrect resolving the value of the promise
@@ -121,9 +123,9 @@ final class IndexProvider
      * @param IndexKey   $indexKey
      * @param IndexValue $value
      *
-     * @return Promise<bool>
-     *
      * @throws \ServiceBus\EventSourcingModule\Exceptions\IndexOperationFailed
+     *
+     * @return Promise<bool>
      */
     public function add(IndexKey $indexKey, IndexValue $value): Promise
     {
@@ -135,35 +137,37 @@ final class IndexProvider
                 {
                     /**
                      * @psalm-suppress TooManyTemplateParams Wrong Promise template
+                     *
                      * @var int $affectedRows
                      */
                     $affectedRows = yield $this->store->add($indexKey, $value);
 
                     return 0 !== $affectedRows;
                 }
-                catch(UniqueConstraintViolationCheckFailed $exception)
+                catch (UniqueConstraintViolationCheckFailed $exception)
                 {
                     return false;
                 }
-                catch(\Throwable $throwable)
+                catch (\Throwable $throwable)
                 {
                     throw IndexOperationFailed::fromThrowable($throwable);
                 }
             },
-            $indexKey, $value
+            $indexKey,
+            $value
         );
     }
 
     /**
-     * Remove value from index
+     * Remove value from index.
      *
      * @noinspection PhpDocRedundantThrowsInspection
      *
      * @param IndexKey $indexKey
      *
-     * @return Promise It doesn't return any result
-     *
      * @throws \ServiceBus\EventSourcingModule\Exceptions\IndexOperationFailed
+     *
+     * @return Promise It doesn't return any result
      */
     public function remove(IndexKey $indexKey): Promise
     {
@@ -175,7 +179,7 @@ final class IndexProvider
                 {
                     yield $this->store->delete($indexKey);
                 }
-                catch(\Throwable $throwable)
+                catch (\Throwable $throwable)
                 {
                     throw IndexOperationFailed::fromThrowable($throwable);
                 }
@@ -185,7 +189,7 @@ final class IndexProvider
     }
 
     /**
-     * Update value in index
+     * Update value in index.
      *
      * @noinspection PhpDocRedundantThrowsInspection
      * @psalm-suppress MixedTypeCoercion Incorrect resolving the value of the promise
@@ -193,9 +197,9 @@ final class IndexProvider
      * @param IndexKey   $indexKey
      * @param IndexValue $value
      *
-     * @return Promise<bool>
-     *
      * @throws \ServiceBus\EventSourcingModule\Exceptions\IndexOperationFailed
+     *
+     * @return Promise<bool>
      */
     public function update(IndexKey $indexKey, IndexValue $value): Promise
     {
@@ -207,18 +211,20 @@ final class IndexProvider
                 {
                     /**
                      * @psalm-suppress TooManyTemplateParams Wrong Promise template
+                     *
                      * @var int $affectedRows
                      */
                     $affectedRows = yield $this->store->update($indexKey, $value);
 
                     return 0 !== $affectedRows;
                 }
-                catch(\Throwable $throwable)
+                catch (\Throwable $throwable)
                 {
                     throw IndexOperationFailed::fromThrowable($throwable);
                 }
             },
-            $indexKey, $value
+            $indexKey,
+            $value
         );
     }
 }

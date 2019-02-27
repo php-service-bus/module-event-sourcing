@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Event Sourcing implementation module
+ * Event Sourcing implementation module.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -13,6 +13,7 @@ declare(strict_types = 1);
 namespace ServiceBus\EventSourcingModule\Tests;
 
 use function Amp\Promise\wait;
+use function ServiceBus\Storage\Sql\fetchOne;
 use PHPUnit\Framework\TestCase;
 use ServiceBus\EventSourcing\Aggregate;
 use ServiceBus\EventSourcing\EventStream\EventStreamRepository;
@@ -32,7 +33,6 @@ use ServiceBus\EventSourcingModule\Tests\stubs\Context;
 use ServiceBus\Storage\Common\DatabaseAdapter;
 use ServiceBus\Storage\Common\StorageConfiguration;
 use ServiceBus\Storage\Sql\AmpPosgreSQL\AmpPostgreSQLAdapter;
-use function ServiceBus\Storage\Sql\fetchOne;
 
 /**
  *
@@ -70,7 +70,7 @@ final class EventSourcingProviderTest extends TestCase
     private $eventSourcingProvider;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      *
      * @throws \Throwable
      */
@@ -86,7 +86,7 @@ final class EventSourcingProviderTest extends TestCase
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      *
      * @throws \Throwable
      */
@@ -103,7 +103,7 @@ final class EventSourcingProviderTest extends TestCase
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      *
      * @throws \Throwable
      */
@@ -119,7 +119,7 @@ final class EventSourcingProviderTest extends TestCase
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      *
      * @throws \Throwable
      */
@@ -137,9 +137,9 @@ final class EventSourcingProviderTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function flow(): void
     {
@@ -159,9 +159,9 @@ final class EventSourcingProviderTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function saveDuplicate(): void
     {
@@ -178,9 +178,9 @@ final class EventSourcingProviderTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function successHardDeleteRevert(): void
     {
@@ -189,7 +189,7 @@ final class EventSourcingProviderTest extends TestCase
 
         wait($this->eventSourcingProvider->save($aggregate, $context));
 
-        foreach(\range(1, 6) as $item)
+        foreach (\range(1, 6) as $item)
         {
             $aggregate->firstAction($item + 1 . ' event');
         }
@@ -198,19 +198,21 @@ final class EventSourcingProviderTest extends TestCase
         wait($this->eventSourcingProvider->save($aggregate, $context));
 
         /** 7 aggregate version */
-        static::assertEquals(7, $aggregate->version());
-        static::assertEquals('7 event', $aggregate->firstValue());
+        static::assertSame(7, $aggregate->version());
+        static::assertSame('7 event', $aggregate->firstValue());
 
         /** @var TestAggregate $aggregate */
         $aggregate = wait(
             $this->eventSourcingProvider->revert(
-                $aggregate, 5, EventStreamRepository::REVERT_MODE_DELETE
+                $aggregate,
+                5,
+                EventStreamRepository::REVERT_MODE_DELETE
             )
         );
 
         /** 7 aggregate version */
-        static::assertEquals(5, $aggregate->version());
-        static::assertEquals('5 event', $aggregate->firstValue());
+        static::assertSame(5, $aggregate->version());
+        static::assertSame('5 event', $aggregate->firstValue());
 
         $eventsCount = wait(
             fetchOne(
@@ -218,15 +220,15 @@ final class EventSourcingProviderTest extends TestCase
             )
         );
 
-        static::assertEquals(5, $eventsCount['cnt']);
+        static::assertSame(5, $eventsCount['cnt']);
     }
 
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function revertUnknownStream(): void
     {
@@ -234,16 +236,18 @@ final class EventSourcingProviderTest extends TestCase
 
         wait(
             $this->eventSourcingProvider->revert(
-                new TestAggregate(TestAggregateId::new()), 20)
+                new TestAggregate(TestAggregateId::new()),
+                20
+            )
         );
     }
 
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function revertWithVersionConflict(): void
     {

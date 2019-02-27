@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Event Sourcing implementation module
+ * Event Sourcing implementation module.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -46,7 +46,7 @@ final class IndexProviderTest extends TestCase
     private $indexProvider;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      *
      * @throws \Throwable
      */
@@ -62,7 +62,7 @@ final class IndexProviderTest extends TestCase
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      *
      * @throws \Throwable
      */
@@ -79,7 +79,7 @@ final class IndexProviderTest extends TestCase
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      *
      * @throws \Throwable
      */
@@ -92,7 +92,7 @@ final class IndexProviderTest extends TestCase
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      *
      * @throws \Throwable
      */
@@ -108,9 +108,9 @@ final class IndexProviderTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function save(): void
     {
@@ -127,15 +127,15 @@ final class IndexProviderTest extends TestCase
         $storedValue = wait($this->indexProvider->get($index));
 
         static::assertNotNull($storedValue);
-        static::assertEquals($value->value, $storedValue->value);
+        static::assertSame($value->value, $storedValue->value);
     }
 
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function saveDuplicate(): void
     {
@@ -148,7 +148,6 @@ final class IndexProviderTest extends TestCase
         static::assertThat($result, new IsType('bool'));
         static::assertTrue($result);
 
-
         /** @var bool $result */
         $result = wait($this->indexProvider->add($index, $value));
 
@@ -159,9 +158,9 @@ final class IndexProviderTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function update(): void
     {
@@ -178,15 +177,15 @@ final class IndexProviderTest extends TestCase
         $storedValue = wait($this->indexProvider->get($index));
 
         static::assertNotNull($storedValue);
-        static::assertEquals($newValue->value, $storedValue->value);
+        static::assertSame($newValue->value, $storedValue->value);
     }
 
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function remove(): void
     {
@@ -202,9 +201,9 @@ final class IndexProviderTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function has(): void
     {

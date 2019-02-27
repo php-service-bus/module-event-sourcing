@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Event Sourcing implementation module
+ * Event Sourcing implementation module.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -35,9 +35,10 @@ final class EventSourcingProvider
     private $repository;
 
     /**
-     * List of loaded/added aggregates
+     * List of loaded/added aggregates.
      *
      * @psalm-var array<string, string>
+     *
      * @var array
      */
     private $aggregates = [];
@@ -51,15 +52,15 @@ final class EventSourcingProvider
     }
 
     /**
-     * Load aggregate
+     * Load aggregate.
      *
      * @noinspection PhpDocRedundantThrowsInspection
      *
      * @param AggregateId $id
      *
-     * @return Promise
-     *
      * @throws \ServiceBus\EventSourcingModule\Exceptions\LoadAggregateFailed
+     *
+     * @return Promise
      */
     public function load(AggregateId $id): Promise
     {
@@ -71,18 +72,19 @@ final class EventSourcingProvider
                 {
                     /**
                      * @psalm-suppress TooManyTemplateParams Wrong Promise template
+                     *
                      * @var Aggregate|null $aggregate
                      */
                     $aggregate = yield $this->repository->load($id);
 
-                    if(null !== $aggregate)
+                    if (null !== $aggregate)
                     {
                         $this->aggregates[(string) $aggregate->id()] = \get_class($aggregate);
                     }
 
                     return $aggregate;
                 }
-                catch(\Throwable $throwable)
+                catch (\Throwable $throwable)
                 {
                     throw LoadAggregateFailed::fromThrowable($throwable);
                 }
@@ -92,17 +94,17 @@ final class EventSourcingProvider
     }
 
     /**
-     * Save a new aggregate
+     * Save a new aggregate.
      *
      * @noinspection PhpDocRedundantThrowsInspection
      *
      * @param Aggregate         $aggregate
      * @param ServiceBusContext $context
      *
-     * @return Promise
-     *
      * @throws \ServiceBus\EventSourcingModule\Exceptions\DuplicateAggregate
      * @throws \ServiceBus\EventSourcingModule\Exceptions\SaveAggregateFailed
+     *
+     * @return Promise
      */
     public function save(Aggregate $aggregate, ServiceBusContext $context): Promise
     {
@@ -113,11 +115,12 @@ final class EventSourcingProvider
                 try
                 {
                     /** The aggregate hasn't been loaded before, which means it is new */
-                    if(false === isset($this->aggregates[(string) $aggregate->id()]))
+                    if (false === isset($this->aggregates[(string) $aggregate->id()]))
                     {
                         /**
                          * @psalm-suppress TooManyTemplateParams Wrong Promise template
                          * @psalm-var      array<int, object> $events
+                         *
                          * @var object[] $events
                          */
                         $events = yield $this->repository->save($aggregate);
@@ -129,6 +132,7 @@ final class EventSourcingProvider
                         /**
                          * @psalm-suppress TooManyTemplateParams Wrong Promise template
                          * @psalm-var      array<int, object> $events
+                         *
                          * @var object[] $events
                          */
                         $events = yield $this->repository->update($aggregate);
@@ -137,28 +141,29 @@ final class EventSourcingProvider
                     $promises = [];
 
                     /** @var object $event */
-                    foreach($events as $event)
+                    foreach ($events as $event)
                     {
                         $promises[] = $context->delivery($event);
                     }
 
                     yield $promises;
                 }
-                catch(UniqueConstraintViolationCheckFailed $exception)
+                catch (UniqueConstraintViolationCheckFailed $exception)
                 {
                     throw DuplicateAggregate::create($aggregate->id());
                 }
-                catch(\Throwable $throwable)
+                catch (\Throwable $throwable)
                 {
                     throw SaveAggregateFailed::fromThrowable($throwable);
                 }
             },
-            $aggregate, $context
+            $aggregate,
+            $context
         );
     }
 
     /**
-     * Revert aggregate to specified version
+     * Revert aggregate to specified version.
      *
      * Mode options:
      *   - 1 (EventStreamRepository::REVERT_MODE_SOFT_DELETE): Mark tail events as deleted (soft deletion). There may
@@ -172,16 +177,15 @@ final class EventSourcingProvider
      * @param int       $toVersion
      * @param int       $mode
      *
-     * @return Promise<\ServiceBus\EventSourcing\Aggregate>
-     *
      * @throws \ServiceBus\EventSourcingModule\Exceptions\RevertAggregateVersionFailed
+     *
+     * @return Promise<\ServiceBus\EventSourcing\Aggregate>
      */
     public function revert(
         Aggregate $aggregate,
         int $toVersion,
         int $mode = EventStreamRepository::REVERT_MODE_SOFT_DELETE
-    ): Promise
-    {
+    ): Promise {
         /** @psalm-suppress InvalidArgument Incorrect psalm unpack parameters (...$args) */
         return call(
             function(Aggregate $aggregate, int $toVersion, int $mode): \Generator
@@ -190,18 +194,21 @@ final class EventSourcingProvider
                 {
                     /**
                      * @psalm-suppress TooManyTemplateParams Wrong Promise template
+                     *
                      * @var Aggregate $aggregate
                      */
                     $aggregate = yield $this->repository->revert($aggregate, $toVersion, $mode);
 
                     return $aggregate;
                 }
-                catch(\Throwable $throwable)
+                catch (\Throwable $throwable)
                 {
                     throw RevertAggregateVersionFailed::fromThrowable($throwable);
                 }
             },
-            $aggregate, $toVersion, $mode
+            $aggregate,
+            $toVersion,
+            $mode
         );
     }
 }

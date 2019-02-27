@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Event Sourcing implementation module
+ * Event Sourcing implementation module.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -105,22 +105,21 @@ final class EventSourcingModule implements ServiceBusModule
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function boot(ContainerBuilder $containerBuilder): void
     {
         /** Default configuration used */
-        if(null !== $this->databaseAdapterServiceId)
+        if (null !== $this->databaseAdapterServiceId)
         {
             $storeArguments = [new Reference($this->databaseAdapterServiceId)];
 
             $containerBuilder->addDefinitions([
                 $this->eventStoreServiceId    => (new Definition(SqlEventStreamStore::class))->setArguments($storeArguments),
                 $this->snapshotStoreServiceId => (new Definition(SqlSnapshotStore::class))->setArguments($storeArguments),
-                $this->indexerStore           => (new Definition(SqlIndexStore::class))->setArguments($storeArguments)
+                $this->indexerStore           => (new Definition(SqlIndexStore::class))->setArguments($storeArguments),
             ]);
         }
-
 
         $this->registerSnapshotter($containerBuilder);
         $this->registerEventSourcingProvider($containerBuilder);
@@ -137,7 +136,7 @@ final class EventSourcingModule implements ServiceBusModule
         /** @psalm-suppress PossiblyNullArgument */
         $containerBuilder->addDefinitions([
             $this->indexerStore  => (new Definition(SqlIndexStore::class))->setArguments([new Reference($this->databaseAdapterServiceId)]),
-            IndexProvider::class => (new Definition(IndexProvider::class))->setArguments([new Reference($this->indexerStore)])
+            IndexProvider::class => (new Definition(IndexProvider::class))->setArguments([new Reference($this->indexerStore)]),
         ]);
     }
 
@@ -154,12 +153,12 @@ final class EventSourcingModule implements ServiceBusModule
             null !== $this->customEventSerializerServiceId
                 ? new Reference($this->customEventSerializerServiceId)
                 : null,
-            new Reference('service_bus.logger')
+            new Reference('service_bus.logger'),
         ];
 
         $containerBuilder->addDefinitions([
             EventStreamRepository::class => (new Definition(EventStreamRepository::class))->setArguments($arguments),
-            EventSourcingProvider::class => (new Definition(EventSourcingProvider::class))->setArguments([new Reference(EventStreamRepository::class)])
+            EventSourcingProvider::class => (new Definition(EventSourcingProvider::class))->setArguments([new Reference(EventStreamRepository::class)]),
         ]);
     }
 
@@ -170,10 +169,10 @@ final class EventSourcingModule implements ServiceBusModule
      */
     private function registerSnapshotter(ContainerBuilder $containerBuilder): void
     {
-        if(null === $this->customSnapshotStrategyServiceId)
+        if (null === $this->customSnapshotStrategyServiceId)
         {
             $containerBuilder->addDefinitions([
-                SnapshotTrigger::class => new Definition(SnapshotVersionTrigger::class)
+                SnapshotTrigger::class => new Definition(SnapshotVersionTrigger::class),
             ]);
 
             $this->customSnapshotStrategyServiceId = SnapshotTrigger::class;
@@ -182,11 +181,11 @@ final class EventSourcingModule implements ServiceBusModule
         $arguments = [
             new Reference($this->snapshotStoreServiceId),
             new Reference($this->customSnapshotStrategyServiceId),
-            new Reference('service_bus.logger')
+            new Reference('service_bus.logger'),
         ];
 
         $containerBuilder->addDefinitions([
-            Snapshotter::class => (new Definition(Snapshotter::class))->setArguments($arguments)
+            Snapshotter::class => (new Definition(Snapshotter::class))->setArguments($arguments),
         ]);
     }
 
