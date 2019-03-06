@@ -18,6 +18,9 @@ use ServiceBus\EventSourcing\Indexes\IndexKey;
 use ServiceBus\EventSourcing\Indexes\IndexValue;
 use ServiceBus\EventSourcing\Indexes\Store\IndexStore;
 use ServiceBus\EventSourcingModule\Exceptions\IndexOperationFailed;
+use ServiceBus\Mutex\InMemoryMutexFactory;
+use ServiceBus\Mutex\Lock;
+use ServiceBus\Mutex\MutexFactory;
 use ServiceBus\Storage\Common\Exceptions\UniqueConstraintViolationCheckFailed;
 
 /**
@@ -31,17 +34,37 @@ final class IndexProvider
     private $store;
 
     /**
-     * @param IndexStore $store
+     * Current locks collection.
+     *
+     * @psalm-var array<string, \ServiceBus\Mutex\Lock>
+     *
+     * @var Lock[]
      */
-    public function __construct(IndexStore $store)
+    private $locks = [];
+
+    /**
+     * Mutex creator.
+     *
+     * @var MutexFactory
+     */
+    private $mutexFactory;
+
+    /**
+     * IndexProvider constructor.
+     *
+     * @param IndexStore        $store
+     * @param MutexFactory|null $mutexFactory
+     */
+    public function __construct(IndexStore $store, ?MutexFactory $mutexFactory = null)
     {
-        $this->store = $store;
+        $this->store        = $store;
+        $this->mutexFactory = $mutexFactory ?? new InMemoryMutexFactory();
     }
 
     /**
      * Receive index value.
      *
-     * @noinspection PhpDocRedundantThrowsInspection
+     * @noinspection   PhpDocRedundantThrowsInspection
      * @psalm-suppress MixedTypeCoercion Incorrect resolving the value of the promise
      *
      * @param IndexKey $indexKey
@@ -58,6 +81,8 @@ final class IndexProvider
             {
                 try
                 {
+                    yield from $this->setupMutex($indexKey);
+
                     /**
                      * @psalm-suppress TooManyTemplateParams Wrong Promise template
                      *
@@ -71,6 +96,10 @@ final class IndexProvider
                 {
                     throw IndexOperationFailed::fromThrowable($throwable);
                 }
+                finally
+                {
+                    yield from $this->releaseMutex($indexKey);
+                }
             },
             $indexKey
         );
@@ -79,7 +108,7 @@ final class IndexProvider
     /**
      * Is there a value in the index.
      *
-     * @noinspection PhpDocRedundantThrowsInspection
+     * @noinspection   PhpDocRedundantThrowsInspection
      * @psalm-suppress MixedTypeCoercion Incorrect resolving the value of the promise
      *
      * @param IndexKey $indexKey
@@ -117,7 +146,7 @@ final class IndexProvider
     /**
      * Add a value to the index. If false, then the value already exists.
      *
-     * @noinspection PhpDocRedundantThrowsInspection
+     * @noinspection   PhpDocRedundantThrowsInspection
      * @psalm-suppress MixedTypeCoercion Incorrect resolving the value of the promise
      *
      * @param IndexKey   $indexKey
@@ -135,6 +164,8 @@ final class IndexProvider
             {
                 try
                 {
+                    yield from $this->setupMutex($indexKey);
+
                     /**
                      * @psalm-suppress TooManyTemplateParams Wrong Promise template
                      *
@@ -151,6 +182,10 @@ final class IndexProvider
                 catch (\Throwable $throwable)
                 {
                     throw IndexOperationFailed::fromThrowable($throwable);
+                }
+                finally
+                {
+                    yield from $this->releaseMutex($indexKey);
                 }
             },
             $indexKey,
@@ -177,11 +212,16 @@ final class IndexProvider
             {
                 try
                 {
+                    yield from $this->setupMutex($indexKey);
                     yield $this->store->delete($indexKey);
                 }
                 catch (\Throwable $throwable)
                 {
                     throw IndexOperationFailed::fromThrowable($throwable);
+                }
+                finally
+                {
+                    yield from $this->releaseMutex($indexKey);
                 }
             },
             $indexKey
@@ -191,7 +231,7 @@ final class IndexProvider
     /**
      * Update value in index.
      *
-     * @noinspection PhpDocRedundantThrowsInspection
+     * @noinspection   PhpDocRedundantThrowsInspection
      * @psalm-suppress MixedTypeCoercion Incorrect resolving the value of the promise
      *
      * @param IndexKey   $indexKey
@@ -209,6 +249,8 @@ final class IndexProvider
             {
                 try
                 {
+                    yield from $this->setupMutex($indexKey);
+
                     /**
                      * @psalm-suppress TooManyTemplateParams Wrong Promise template
                      *
@@ -222,9 +264,51 @@ final class IndexProvider
                 {
                     throw IndexOperationFailed::fromThrowable($throwable);
                 }
+                finally
+                {
+                    yield from $this->releaseMutex($indexKey);
+                }
             },
             $indexKey,
             $value
         );
+    }
+
+    /**
+     * @param IndexKey $indexKey
+     *
+     * @return \Generator
+     */
+    private function setupMutex(IndexKey $indexKey): \Generator
+    {
+        $mutexKey = createIndexMutex($indexKey);
+        $mutex    = $this->mutexFactory->create($mutexKey);
+
+        /**
+         * @psalm-suppress TooManyTemplateParams
+         * @psalm-suppress InvalidPropertyAssignmentValue
+         */
+        $this->locks[$mutexKey] = yield $mutex->acquire();
+    }
+
+    /**
+     * @param IndexKey $indexKey
+     *
+     * @return \Generator
+     */
+    private function releaseMutex(IndexKey $indexKey): \Generator
+    {
+        $mutexKey = createIndexMutex($indexKey);
+
+        if (true === isset($this->locks[$mutexKey]))
+        {
+            /** @var Lock $lock */
+            $lock = $this->locks[$mutexKey];
+
+            /** @psalm-suppress TooManyTemplateParams */
+            yield $lock->release();
+
+            unset($this->locks[$mutexKey]);
+        }
     }
 }

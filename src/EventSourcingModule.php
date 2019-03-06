@@ -23,6 +23,8 @@ use ServiceBus\EventSourcing\Snapshots\Store\SnapshotStore;
 use ServiceBus\EventSourcing\Snapshots\Store\SqlSnapshotStore;
 use ServiceBus\EventSourcing\Snapshots\Triggers\SnapshotTrigger;
 use ServiceBus\EventSourcing\Snapshots\Triggers\SnapshotVersionTrigger;
+use ServiceBus\Mutex\InMemoryMutexFactory;
+use ServiceBus\Mutex\MutexFactory;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
@@ -121,9 +123,23 @@ final class EventSourcingModule implements ServiceBusModule
             ]);
         }
 
+        $this->registerMutexFactory($containerBuilder);
         $this->registerSnapshotter($containerBuilder);
         $this->registerEventSourcingProvider($containerBuilder);
         $this->registerIndexer($containerBuilder);
+    }
+
+    /**
+     * @param ContainerBuilder $containerBuilder
+     */
+    private function registerMutexFactory(ContainerBuilder $containerBuilder): void
+    {
+        if (false === $containerBuilder->hasDefinition(MutexFactory::class))
+        {
+            $containerBuilder->addDefinitions([
+                MutexFactory::class => new Definition(InMemoryMutexFactory::class),
+            ]);
+        }
     }
 
     /**
@@ -136,7 +152,12 @@ final class EventSourcingModule implements ServiceBusModule
         /** @psalm-suppress PossiblyNullArgument */
         $containerBuilder->addDefinitions([
             $this->indexerStore  => (new Definition(SqlIndexStore::class))->setArguments([new Reference($this->databaseAdapterServiceId)]),
-            IndexProvider::class => (new Definition(IndexProvider::class))->setArguments([new Reference($this->indexerStore)]),
+            IndexProvider::class => (new Definition(IndexProvider::class))->setArguments(
+                [
+                    new Reference($this->indexerStore),
+                    new Reference(MutexFactory::class),
+                ]
+            ),
         ]);
     }
 
@@ -158,7 +179,12 @@ final class EventSourcingModule implements ServiceBusModule
 
         $containerBuilder->addDefinitions([
             EventStreamRepository::class => (new Definition(EventStreamRepository::class))->setArguments($arguments),
-            EventSourcingProvider::class => (new Definition(EventSourcingProvider::class))->setArguments([new Reference(EventStreamRepository::class)]),
+            EventSourcingProvider::class => (new Definition(EventSourcingProvider::class))->setArguments(
+                [
+                    new Reference(EventStreamRepository::class),
+                    new Reference(MutexFactory::class),
+                ]
+            ),
         ]);
     }
 

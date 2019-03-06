@@ -22,6 +22,9 @@ use ServiceBus\EventSourcingModule\Exceptions\DuplicateAggregate;
 use ServiceBus\EventSourcingModule\Exceptions\LoadAggregateFailed;
 use ServiceBus\EventSourcingModule\Exceptions\RevertAggregateVersionFailed;
 use ServiceBus\EventSourcingModule\Exceptions\SaveAggregateFailed;
+use ServiceBus\Mutex\InMemoryMutexFactory;
+use ServiceBus\Mutex\Lock;
+use ServiceBus\Mutex\MutexFactory;
 use ServiceBus\Storage\Common\Exceptions\UniqueConstraintViolationCheckFailed;
 
 /**
@@ -44,11 +47,31 @@ final class EventSourcingProvider
     private $aggregates = [];
 
     /**
-     * @param EventStreamRepository $repository
+     * Current locks collection.
+     *
+     * @psalm-var array<string, \ServiceBus\Mutex\Lock>
+     *
+     * @var Lock[]
      */
-    public function __construct(EventStreamRepository $repository)
+    private $locks = [];
+
+    /**
+     * Mutex creator.
+     *
+     * @var MutexFactory
+     */
+    private $mutexFactory;
+
+    /**
+     * EventSourcingProvider constructor.
+     *
+     * @param EventStreamRepository $repository
+     * @param MutexFactory|null     $mutexFactory
+     */
+    public function __construct(EventStreamRepository $repository, ?MutexFactory $mutexFactory = null)
     {
-        $this->repository = $repository;
+        $this->repository   = $repository;
+        $this->mutexFactory = $mutexFactory ?? new InMemoryMutexFactory();
     }
 
     /**
@@ -61,6 +84,7 @@ final class EventSourcingProvider
      * @throws \ServiceBus\EventSourcingModule\Exceptions\LoadAggregateFailed
      *
      * @return Promise
+     *
      */
     public function load(AggregateId $id): Promise
     {
@@ -70,6 +94,8 @@ final class EventSourcingProvider
             {
                 try
                 {
+                    yield from $this->setupMutex($id);
+
                     /**
                      * @psalm-suppress TooManyTemplateParams Wrong Promise template
                      *
@@ -86,6 +112,8 @@ final class EventSourcingProvider
                 }
                 catch (\Throwable $throwable)
                 {
+                    yield from $this->releaseMutex($id);
+
                     throw LoadAggregateFailed::fromThrowable($throwable);
                 }
             },
@@ -101,10 +129,11 @@ final class EventSourcingProvider
      * @param Aggregate         $aggregate
      * @param ServiceBusContext $context
      *
-     * @throws \ServiceBus\EventSourcingModule\Exceptions\DuplicateAggregate
      * @throws \ServiceBus\EventSourcingModule\Exceptions\SaveAggregateFailed
+     * @throws \ServiceBus\EventSourcingModule\Exceptions\DuplicateAggregate
      *
      * @return Promise
+     *
      */
     public function save(Aggregate $aggregate, ServiceBusContext $context): Promise
     {
@@ -156,6 +185,10 @@ final class EventSourcingProvider
                 {
                     throw SaveAggregateFailed::fromThrowable($throwable);
                 }
+                finally
+                {
+                    yield from $this->releaseMutex($aggregate->id());
+                }
             },
             $aggregate,
             $context
@@ -180,16 +213,21 @@ final class EventSourcingProvider
      * @throws \ServiceBus\EventSourcingModule\Exceptions\RevertAggregateVersionFailed
      *
      * @return Promise<\ServiceBus\EventSourcing\Aggregate>
+     *
      */
     public function revert(
         Aggregate $aggregate,
         int $toVersion,
-        int $mode = EventStreamRepository::REVERT_MODE_SOFT_DELETE
+        ?int $mode = null
     ): Promise {
+        $mode = $mode ?? EventStreamRepository::REVERT_MODE_SOFT_DELETE;
+
         /** @psalm-suppress InvalidArgument Incorrect psalm unpack parameters (...$args) */
         return call(
             function(Aggregate $aggregate, int $toVersion, int $mode): \Generator
             {
+                yield from $this->setupMutex($aggregate->id());
+
                 try
                 {
                     /**
@@ -205,10 +243,52 @@ final class EventSourcingProvider
                 {
                     throw RevertAggregateVersionFailed::fromThrowable($throwable);
                 }
+                finally
+                {
+                    yield from $this->releaseMutex($aggregate->id());
+                }
             },
             $aggregate,
             $toVersion,
             $mode
         );
+    }
+
+    /**
+     * @param AggregateId $id
+     *
+     * @return \Generator
+     */
+    private function setupMutex(AggregateId $id): \Generator
+    {
+        $mutexKey = createAggregateMutexKey($id);
+        $mutex    = $this->mutexFactory->create($mutexKey);
+
+        /**
+         * @psalm-suppress TooManyTemplateParams
+         * @psalm-suppress InvalidPropertyAssignmentValue
+         */
+        $this->locks[$mutexKey] = yield $mutex->acquire();
+    }
+
+    /**
+     * @param AggregateId $id
+     *
+     * @return \Generator
+     */
+    private function releaseMutex(AggregateId $id): \Generator
+    {
+        $mutexKey = createAggregateMutexKey($id);
+
+        if (true === isset($this->locks[$mutexKey]))
+        {
+            /** @var Lock $lock */
+            $lock = $this->locks[$mutexKey];
+
+            /** @psalm-suppress TooManyTemplateParams */
+            yield $lock->release();
+
+            unset($this->locks[$mutexKey]);
+        }
     }
 }
