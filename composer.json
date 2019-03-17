@@ -40,7 +40,7 @@
   },
   "require": {
     "php": ">=7.2",
-    "php-service-bus/event-sourcing": "^v3.0",
+    "php-service-bus/event-sourcing": "^v3.1",
     "php-service-bus/mutex": "^v3.0"
   },
   "require-dev": {
@@ -52,7 +52,7 @@
     "vimeo/psalm": "^v3"
   },
   "prefer-stable": true,
-  "minimum-stability": "dev",
+  "minimum-stability": "stable",
   "scripts": {
     "psalm": "./vendor/bin/psalm --config=psalm.xml",
     "tests": "./vendor/bin/phpunit --configuration phpunit.xml --verbose",
