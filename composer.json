@@ -40,12 +40,12 @@
   },
   "require": {
     "php": ">=7.2",
-    "php-service-bus/event-sourcing": "^v3.1",
-    "php-service-bus/mutex": "^v3.0"
+    "php-service-bus/event-sourcing": "^v3.2",
+    "php-service-bus/mutex": "^v3.2"
   },
   "require-dev": {
     "php-service-bus/code-style-config": "^v0.1",
-    "php-service-bus/storage-sql": "^v3.0",
+    "php-service-bus/storage-sql": "^v3.2",
     "symfony/dependency-injection": "^v4.2",
     "doctrine/dbal": "^v2.6",
     "phpunit/phpunit": "^8",
