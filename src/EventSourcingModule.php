@@ -151,7 +151,7 @@ final class EventSourcingModule implements ServiceBusModule
     {
         /** @psalm-suppress PossiblyNullArgument */
         $containerBuilder->addDefinitions([
-            $this->indexerStore  => (new Definition(SqlIndexStore::class))->setArguments([new Reference($this->databaseAdapterServiceId)]),
+            $this->indexerStore  => (new Definition(SqlIndexStore::class))->setArguments([new Reference((string)$this->databaseAdapterServiceId)]),
             IndexProvider::class => (new Definition(IndexProvider::class))->setArguments(
                 [
                     new Reference($this->indexerStore),
