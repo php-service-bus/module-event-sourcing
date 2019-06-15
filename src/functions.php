@@ -24,7 +24,7 @@ use ServiceBus\EventSourcing\Indexes\IndexKey;
  */
 function createAggregateMutexKey(AggregateId $id): string
 {
-    return \sha1(\sprintf('aggregate:%s', $id));
+    return \sha1(\sprintf('aggregate:%s', $id->toString()));
 }
 
 /**

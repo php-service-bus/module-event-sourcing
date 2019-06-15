@@ -27,7 +27,7 @@ final class DuplicateAggregate extends \InvalidArgumentException
     public static function create(AggregateId $id): self
     {
         return new self(
-            \sprintf('Aggregate with ID "%s" already exists', $id)
+            \sprintf('Aggregate with ID "%s" already exists', $id->toString())
         );
     }
 }
