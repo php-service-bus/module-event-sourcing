@@ -17,6 +17,7 @@ use Psr\Log\NullLogger;
 use ServiceBus\EventSourcingModule\EventSourcingModule;
 use ServiceBus\EventSourcingModule\EventSourcingProvider;
 use ServiceBus\EventSourcingModule\IndexProvider;
+use ServiceBus\MessageSerializer\Symfony\SymfonyMessageSerializer;
 use ServiceBus\Storage\Common\DatabaseAdapter;
 use ServiceBus\Storage\Common\StorageConfiguration;
 use ServiceBus\Storage\Sql\DoctrineDBAL\DoctrineDBALAdapter;
@@ -40,9 +41,10 @@ final class EventSourcingModuleTest extends TestCase
     {
         $containerBuilder = new ContainerBuilder();
         $containerBuilder->addDefinitions([
-            StorageConfiguration::class => (new Definition(StorageConfiguration::class))->setArguments(['sqlite:///:memory:']),
-            DatabaseAdapter::class      => (new Definition(DoctrineDBALAdapter::class))->setArguments([new Reference(StorageConfiguration::class)]),
-            'service_bus.logger'        => new Definition(NullLogger::class),
+            StorageConfiguration::class           => (new Definition(StorageConfiguration::class))->setArguments(['sqlite:///:memory:']),
+            DatabaseAdapter::class                => (new Definition(DoctrineDBALAdapter::class))->setArguments([new Reference(StorageConfiguration::class)]),
+            'service_bus.logger'                  => new Definition(NullLogger::class),
+            'service_bus.decoder.default_handler' => new Definition(SymfonyMessageSerializer::class),
         ]);
 
         $module = EventSourcingModule::withSqlStorage(DatabaseAdapter::class);

@@ -17,6 +17,7 @@ use function ServiceBus\Storage\Sql\fetchOne;
 use PHPUnit\Framework\TestCase;
 use ServiceBus\EventSourcing\Aggregate;
 use ServiceBus\EventSourcing\EventStream\EventStreamRepository;
+use ServiceBus\EventSourcing\EventStream\Serializer\DefaultEventSerializer;
 use ServiceBus\EventSourcing\EventStream\Store\EventStreamStore;
 use ServiceBus\EventSourcing\EventStream\Store\SqlEventStreamStore;
 use ServiceBus\EventSourcing\Snapshots\Snapshotter;
@@ -30,6 +31,7 @@ use ServiceBus\EventSourcingModule\Exceptions\DuplicateAggregate;
 use ServiceBus\EventSourcingModule\Exceptions\RevertAggregateVersionFailed;
 use ServiceBus\EventSourcingModule\SqlSchemaCreator;
 use ServiceBus\EventSourcingModule\Tests\stubs\Context;
+use ServiceBus\MessageSerializer\Symfony\SymfonyMessageSerializer;
 use ServiceBus\Storage\Common\DatabaseAdapter;
 use ServiceBus\Storage\Common\StorageConfiguration;
 use ServiceBus\Storage\Sql\AmpPosgreSQL\AmpPostgreSQLAdapter;
@@ -114,7 +116,14 @@ final class EventSourcingProviderTest extends TestCase
         $this->eventStore            = new SqlEventStreamStore(self::$adapter);
         $this->snapshotStore         = new SqlSnapshotStore(self::$adapter);
         $this->snapshotter           = new Snapshotter($this->snapshotStore, new SnapshotVersionTrigger(10));
-        $this->eventStreamRepository = new EventStreamRepository($this->eventStore, $this->snapshotter);
+        $this->eventStreamRepository = new EventStreamRepository(
+            $this->eventStore,
+            $this->snapshotter,
+            new DefaultEventSerializer(
+                new SymfonyMessageSerializer()
+            )
+        );
+
         $this->eventSourcingProvider = new EventSourcingProvider($this->eventStreamRepository);
     }
 

@@ -14,6 +14,8 @@ namespace ServiceBus\EventSourcingModule;
 
 use ServiceBus\Common\Module\ServiceBusModule;
 use ServiceBus\EventSourcing\EventStream\EventStreamRepository;
+use ServiceBus\EventSourcing\EventStream\Serializer\DefaultEventSerializer;
+use ServiceBus\EventSourcing\EventStream\Serializer\EventSerializer;
 use ServiceBus\EventSourcing\EventStream\Store\EventStreamStore;
 use ServiceBus\EventSourcing\EventStream\Store\SqlEventStreamStore;
 use ServiceBus\EventSourcing\Indexes\Store\IndexStore;
@@ -112,7 +114,7 @@ final class EventSourcingModule implements ServiceBusModule
     public function boot(ContainerBuilder $containerBuilder): void
     {
         /** Default configuration used */
-        if(null !== $this->databaseAdapterServiceId)
+        if (null !== $this->databaseAdapterServiceId)
         {
             $storeArguments = [new Reference($this->databaseAdapterServiceId)];
 
@@ -134,7 +136,7 @@ final class EventSourcingModule implements ServiceBusModule
      */
     private function registerMutexFactory(ContainerBuilder $containerBuilder): void
     {
-        if(false === $containerBuilder->hasDefinition(MutexFactory::class))
+        if (false === $containerBuilder->hasDefinition(MutexFactory::class))
         {
             $containerBuilder->addDefinitions([
                 MutexFactory::class => new Definition(InMemoryMutexFactory::class),
@@ -168,13 +170,29 @@ final class EventSourcingModule implements ServiceBusModule
      */
     private function registerEventSourcingProvider(ContainerBuilder $containerBuilder): void
     {
+        $serializer = null;
+
+        if (null !== $this->customEventSerializerServiceId)
+        {
+            $serializer = new Reference($this->customEventSerializerServiceId);
+        }
+        else
+        {
+            $containerBuilder->addDefinitions(
+                [
+                    EventSerializer::class => (new Definition(DefaultEventSerializer::class))->setArguments([
+                        new Reference('service_bus.decoder.default_handler'),
+                    ]),
+                ]
+            );
+
+            $serializer = new Reference(EventSerializer::class);
+        }
+
         $arguments = [
             new Reference($this->eventStoreServiceId),
             new Reference(Snapshotter::class),
-            null !== $this->customEventSerializerServiceId
-                ? new Reference($this->customEventSerializerServiceId)
-                : new Reference('service_bus.decoder.default_handler'),
-            new Reference('service_bus.logger'),
+            $serializer,
         ];
 
         $containerBuilder->addDefinitions([
@@ -195,7 +213,7 @@ final class EventSourcingModule implements ServiceBusModule
      */
     private function registerSnapshotter(ContainerBuilder $containerBuilder): void
     {
-        if(null === $this->customSnapshotStrategyServiceId)
+        if (null === $this->customSnapshotStrategyServiceId)
         {
             $containerBuilder->addDefinitions([
                 SnapshotTrigger::class => new Definition(SnapshotVersionTrigger::class),
