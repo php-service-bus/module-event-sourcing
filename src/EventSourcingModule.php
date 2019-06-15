@@ -112,7 +112,7 @@ final class EventSourcingModule implements ServiceBusModule
     public function boot(ContainerBuilder $containerBuilder): void
     {
         /** Default configuration used */
-        if (null !== $this->databaseAdapterServiceId)
+        if(null !== $this->databaseAdapterServiceId)
         {
             $storeArguments = [new Reference($this->databaseAdapterServiceId)];
 
@@ -134,7 +134,7 @@ final class EventSourcingModule implements ServiceBusModule
      */
     private function registerMutexFactory(ContainerBuilder $containerBuilder): void
     {
-        if (false === $containerBuilder->hasDefinition(MutexFactory::class))
+        if(false === $containerBuilder->hasDefinition(MutexFactory::class))
         {
             $containerBuilder->addDefinitions([
                 MutexFactory::class => new Definition(InMemoryMutexFactory::class),
@@ -173,7 +173,7 @@ final class EventSourcingModule implements ServiceBusModule
             new Reference(Snapshotter::class),
             null !== $this->customEventSerializerServiceId
                 ? new Reference($this->customEventSerializerServiceId)
-                : null,
+                : new Reference('service_bus.decoder.default_handler'),
             new Reference('service_bus.logger'),
         ];
 
@@ -195,7 +195,7 @@ final class EventSourcingModule implements ServiceBusModule
      */
     private function registerSnapshotter(ContainerBuilder $containerBuilder): void
     {
-        if (null === $this->customSnapshotStrategyServiceId)
+        if(null === $this->customSnapshotStrategyServiceId)
         {
             $containerBuilder->addDefinitions([
                 SnapshotTrigger::class => new Definition(SnapshotVersionTrigger::class),
