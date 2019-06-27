@@ -107,6 +107,10 @@ final class EventSourcingProvider
                     {
                         $this->aggregates[(string) $aggregate->id()] = \get_class($aggregate);
                     }
+                    else
+                    {
+                        yield from $this->releaseMutex($id);
+                    }
 
                     return $aggregate;
                 }
