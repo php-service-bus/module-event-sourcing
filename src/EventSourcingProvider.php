@@ -262,13 +262,17 @@ final class EventSourcingProvider
     private function setupMutex(AggregateId $id): \Generator
     {
         $mutexKey = createAggregateMutexKey($id);
-        $mutex    = $this->mutexFactory->create($mutexKey);
 
-        /**
-         * @psalm-suppress TooManyTemplateParams
-         * @psalm-suppress InvalidPropertyAssignmentValue
-         */
-        $this->locks[$mutexKey] = yield $mutex->acquire();
+        if (false === isset($this->locks[$mutexKey]))
+        {
+            $mutex = $this->mutexFactory->create($mutexKey);
+
+            /**
+             * @psalm-suppress TooManyTemplateParams
+             * @psalm-suppress InvalidPropertyAssignmentValue
+             */
+            $this->locks[$mutexKey] = yield $mutex->acquire();
+        }
     }
 
     /**
