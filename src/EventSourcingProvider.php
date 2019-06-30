@@ -84,7 +84,6 @@ final class EventSourcingProvider
      * @throws \ServiceBus\EventSourcingModule\Exceptions\LoadAggregateFailed
      *
      * @return Promise
-     *
      */
     public function load(AggregateId $id): Promise
     {
@@ -137,7 +136,6 @@ final class EventSourcingProvider
      * @throws \ServiceBus\EventSourcingModule\Exceptions\DuplicateAggregate
      *
      * @return Promise
-     *
      */
     public function save(Aggregate $aggregate, ServiceBusContext $context): Promise
     {
@@ -217,7 +215,6 @@ final class EventSourcingProvider
      * @throws \ServiceBus\EventSourcingModule\Exceptions\RevertAggregateVersionFailed
      *
      * @return Promise<\ServiceBus\EventSourcing\Aggregate>
-     *
      */
     public function revert(
         Aggregate $aggregate,

@@ -193,6 +193,7 @@ final class EventSourcingModule implements ServiceBusModule
             new Reference($this->eventStoreServiceId),
             new Reference(Snapshotter::class),
             $serializer,
+            new Reference('service_bus.logger'),
         ];
 
         $containerBuilder->addDefinitions([
@@ -216,7 +217,7 @@ final class EventSourcingModule implements ServiceBusModule
         if (null === $this->customSnapshotStrategyServiceId)
         {
             $containerBuilder->addDefinitions([
-                SnapshotTrigger::class => new Definition(SnapshotVersionTrigger::class),
+                SnapshotTrigger::class => new Definition(SnapshotVersionTrigger::class, [30]),
             ]);
 
             $this->customSnapshotStrategyServiceId = SnapshotTrigger::class;
