@@ -12,11 +12,11 @@ declare(strict_types = 1);
 
 namespace ServiceBus\EventSourcingModule\Tests;
 
-use Amp\Loop;
 use function Amp\Promise\wait;
+use function ServiceBus\Storage\Sql\fetchOne;
+use Amp\Loop;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
-use function ServiceBus\Storage\Sql\fetchOne;
 use PHPUnit\Framework\TestCase;
 use ServiceBus\EventSourcing\Aggregate;
 use ServiceBus\EventSourcing\EventStream\EventStreamRepository;
@@ -215,7 +215,7 @@ final class EventSourcingProviderTest extends TestCase
 
                 yield $this->eventSourcingProvider->save($aggregate, $context);
 
-                foreach(\range(1, 6) as $item)
+                foreach (\range(1, 6) as $item)
                 {
                     $aggregate->firstAction($item + 1 . ' event');
                 }
