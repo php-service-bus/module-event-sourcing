@@ -83,7 +83,7 @@ final class SqlSchemaCreator
                     {
                         if ('' !== $query)
                         {
-                              yield $this->adapter->execute($query);
+                            yield $this->adapter->execute($query);
                         }
                     }
                 }

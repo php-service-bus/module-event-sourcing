@@ -100,7 +100,7 @@ final class EventSourcingProvider
 
                     if (null !== $aggregate)
                     {
-                        $this->aggregates[(string) $aggregate->id()] = \get_class($aggregate);
+                        $this->aggregates[$aggregate->id()->toString()] = \get_class($aggregate);
                     }
                     else
                     {
@@ -142,7 +142,7 @@ final class EventSourcingProvider
                 try
                 {
                     /** The aggregate hasn't been loaded before, which means it is new */
-                    if (false === isset($this->aggregates[(string) $aggregate->id()]))
+                    if (false === isset($this->aggregates[$aggregate->id()->toString()]))
                     {
                         /**
                          * @psalm-var      array<int, object> $events
@@ -151,7 +151,7 @@ final class EventSourcingProvider
                          */
                         $events = yield $this->repository->save($aggregate);
 
-                        $this->aggregates[(string) $aggregate->id()] = \get_class($aggregate);
+                        $this->aggregates[$aggregate->id()->toString()] = \get_class($aggregate);
                     }
                     else
                     {
