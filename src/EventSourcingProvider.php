@@ -145,7 +145,7 @@ final class EventSourcingProvider
                     if (false === isset($this->aggregates[$aggregate->id()->toString()]))
                     {
                         /**
-                         * @psalm-var      array<int, object> $events
+                         * @psalm-var  array<int, object> $events
                          *
                          * @var object[] $events
                          */
