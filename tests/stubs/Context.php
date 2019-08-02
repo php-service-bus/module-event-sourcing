@@ -63,9 +63,17 @@ final class Context implements ServiceBusContext
     /**
      * {@inheritdoc}
      */
-    public function logContextThrowable(\Throwable $throwable, string $level = LogLevel::ERROR, array $extra = []): void
+    public function logContextThrowable(\Throwable $throwable, array $extra = [], string $level = LogLevel::ERROR): void
     {
         // TODO: Implement logContextThrowable() method.
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function return(int $secondsDelay = 3): Promise
+    {
+       return new Success();
     }
 
     /**
