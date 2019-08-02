@@ -83,11 +83,7 @@ final class IndexProvider
                 {
                     yield from $this->setupMutex($indexKey);
 
-                    /**
-                     * @psalm-suppress TooManyTemplateParams Wrong Promise template
-                     *
-                     * @var IndexValue|null $value
-                     */
+                    /** @var IndexValue|null $value */
                     $value = yield $this->store->find($indexKey);
 
                     return $value;
@@ -125,11 +121,7 @@ final class IndexProvider
             {
                 try
                 {
-                    /**
-                     * @psalm-suppress TooManyTemplateParams Wrong Promise template
-                     *
-                     * @var IndexValue|null $value
-                     */
+                    /** @var IndexValue|null $value */
                     $value = yield $this->store->find($indexKey);
 
                     return null !== $value;
@@ -166,11 +158,7 @@ final class IndexProvider
                 {
                     yield from $this->setupMutex($indexKey);
 
-                    /**
-                     * @psalm-suppress TooManyTemplateParams Wrong Promise template
-                     *
-                     * @var int $affectedRows
-                     */
+                    /** @var int $affectedRows */
                     $affectedRows = yield $this->store->add($indexKey, $value);
 
                     return 0 !== $affectedRows;
@@ -251,11 +239,7 @@ final class IndexProvider
                 {
                     yield from $this->setupMutex($indexKey);
 
-                    /**
-                     * @psalm-suppress TooManyTemplateParams Wrong Promise template
-                     *
-                     * @var int $affectedRows
-                     */
+                    /** @var int $affectedRows */
                     $affectedRows = yield $this->store->update($indexKey, $value);
 
                     return 0 !== $affectedRows;
@@ -284,10 +268,7 @@ final class IndexProvider
         $mutexKey = createIndexMutex($indexKey);
         $mutex    = $this->mutexFactory->create($mutexKey);
 
-        /**
-         * @psalm-suppress TooManyTemplateParams
-         * @psalm-suppress InvalidPropertyAssignmentValue
-         */
+        /** @psalm-suppress InvalidPropertyAssignmentValue */
         $this->locks[$mutexKey] = yield $mutex->acquire();
     }
 
@@ -305,7 +286,6 @@ final class IndexProvider
             /** @var Lock $lock */
             $lock = $this->locks[$mutexKey];
 
-            /** @psalm-suppress TooManyTemplateParams */
             yield $lock->release();
 
             unset($this->locks[$mutexKey]);

@@ -95,11 +95,7 @@ final class EventSourcingProvider
                 {
                     yield from $this->setupMutex($id);
 
-                    /**
-                     * @psalm-suppress TooManyTemplateParams Wrong Promise template
-                     *
-                     * @var Aggregate|null $aggregate
-                     */
+                    /** @var Aggregate|null $aggregate */
                     $aggregate = yield $this->repository->load($id);
 
                     if (null !== $aggregate)
@@ -149,7 +145,6 @@ final class EventSourcingProvider
                     if (false === isset($this->aggregates[(string) $aggregate->id()]))
                     {
                         /**
-                         * @psalm-suppress TooManyTemplateParams Wrong Promise template
                          * @psalm-var      array<int, object> $events
                          *
                          * @var object[] $events
@@ -161,8 +156,7 @@ final class EventSourcingProvider
                     else
                     {
                         /**
-                         * @psalm-suppress TooManyTemplateParams Wrong Promise template
-                         * @psalm-var      array<int, object> $events
+                         * @psalm-var array<int, object> $events
                          *
                          * @var object[] $events
                          */
@@ -231,11 +225,7 @@ final class EventSourcingProvider
 
                 try
                 {
-                    /**
-                     * @psalm-suppress TooManyTemplateParams Wrong Promise template
-                     *
-                     * @var Aggregate $aggregate
-                     */
+                    /** @var Aggregate $aggregate */
                     $aggregate = yield $this->repository->revert($aggregate, $toVersion, $mode);
 
                     return $aggregate;
@@ -268,10 +258,7 @@ final class EventSourcingProvider
         {
             $mutex = $this->mutexFactory->create($mutexKey);
 
-            /**
-             * @psalm-suppress TooManyTemplateParams
-             * @psalm-suppress InvalidPropertyAssignmentValue
-             */
+            /** @psalm-suppress InvalidPropertyAssignmentValue */
             $this->locks[$mutexKey] = yield $mutex->acquire();
         }
     }
@@ -290,7 +277,6 @@ final class EventSourcingProvider
             /** @var Lock $lock */
             $lock = $this->locks[$mutexKey];
 
-            /** @psalm-suppress TooManyTemplateParams */
             yield $lock->release();
 
             unset($this->locks[$mutexKey]);
