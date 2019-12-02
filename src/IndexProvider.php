@@ -28,10 +28,7 @@ use ServiceBus\Storage\Common\Exceptions\UniqueConstraintViolationCheckFailed;
  */
 final class IndexProvider
 {
-    /**
-     * @var IndexStore
-     */
-    private $store;
+    private IndexStore $store;
 
     /**
      * Current locks collection.
@@ -40,21 +37,15 @@ final class IndexProvider
      *
      * @var Lock[]
      */
-    private $locks = [];
+    private array $locks = [];
 
     /**
      * Mutex creator.
      *
      * @var MutexFactory
      */
-    private $mutexFactory;
+    private MutexFactory $mutexFactory;
 
-    /**
-     * IndexProvider constructor.
-     *
-     * @param IndexStore        $store
-     * @param MutexFactory|null $mutexFactory
-     */
     public function __construct(IndexStore $store, ?MutexFactory $mutexFactory = null)
     {
         $this->store        = $store;
@@ -64,20 +55,14 @@ final class IndexProvider
     /**
      * Receive index value.
      *
-     * @noinspection   PhpDocRedundantThrowsInspection
-     * @psalm-suppress MixedTypeCoercion Incorrect resolving the value of the promise
-     *
-     * @param IndexKey $indexKey
+     * Returns \ServiceBus\EventSourcing\Indexes\IndexValue|null
      *
      * @throws \ServiceBus\EventSourcingModule\Exceptions\IndexOperationFailed
-     *
-     * @return Promise<\ServiceBus\EventSourcing\Indexes\IndexValue|null>
      */
     public function get(IndexKey $indexKey): Promise
     {
-        /** @psalm-suppress InvalidArgument Incorrect psalm unpack parameters (...$args) */
         return call(
-            function(IndexKey $indexKey): \Generator
+            function (IndexKey $indexKey): \Generator
             {
                 try
                 {
@@ -104,20 +89,12 @@ final class IndexProvider
     /**
      * Is there a value in the index.
      *
-     * @noinspection   PhpDocRedundantThrowsInspection
-     * @psalm-suppress MixedTypeCoercion Incorrect resolving the value of the promise
-     *
-     * @param IndexKey $indexKey
-     *
      * @throws \ServiceBus\EventSourcingModule\Exceptions\IndexOperationFailed
-     *
-     * @return Promise<bool>
      */
     public function has(IndexKey $indexKey): Promise
     {
-        /** @psalm-suppress InvalidArgument Incorrect psalm unpack parameters (...$args) */
         return call(
-            function(IndexKey $indexKey): \Generator
+            function (IndexKey $indexKey): \Generator
             {
                 try
                 {
@@ -138,21 +115,12 @@ final class IndexProvider
     /**
      * Add a value to the index. If false, then the value already exists.
      *
-     * @noinspection   PhpDocRedundantThrowsInspection
-     * @psalm-suppress MixedTypeCoercion Incorrect resolving the value of the promise
-     *
-     * @param IndexKey   $indexKey
-     * @param IndexValue $value
-     *
      * @throws \ServiceBus\EventSourcingModule\Exceptions\IndexOperationFailed
-     *
-     * @return Promise<bool>
      */
     public function add(IndexKey $indexKey, IndexValue $value): Promise
     {
-        /** @psalm-suppress InvalidArgument Incorrect psalm unpack parameters (...$args) */
         return call(
-            function(IndexKey $indexKey, IndexValue $value): \Generator
+            function (IndexKey $indexKey, IndexValue $value): \Generator
             {
                 try
                 {
@@ -184,19 +152,12 @@ final class IndexProvider
     /**
      * Remove value from index.
      *
-     * @noinspection PhpDocRedundantThrowsInspection
-     *
-     * @param IndexKey $indexKey
-     *
      * @throws \ServiceBus\EventSourcingModule\Exceptions\IndexOperationFailed
-     *
-     * @return Promise It doesn't return any result
      */
     public function remove(IndexKey $indexKey): Promise
     {
-        /** @psalm-suppress InvalidArgument Incorrect psalm unpack parameters (...$args) */
         return call(
-            function(IndexKey $indexKey): \Generator
+            function (IndexKey $indexKey): \Generator
             {
                 try
                 {
@@ -219,21 +180,12 @@ final class IndexProvider
     /**
      * Update value in index.
      *
-     * @noinspection   PhpDocRedundantThrowsInspection
-     * @psalm-suppress MixedTypeCoercion Incorrect resolving the value of the promise
-     *
-     * @param IndexKey   $indexKey
-     * @param IndexValue $value
-     *
      * @throws \ServiceBus\EventSourcingModule\Exceptions\IndexOperationFailed
-     *
-     * @return Promise<bool>
      */
     public function update(IndexKey $indexKey, IndexValue $value): Promise
     {
-        /** @psalm-suppress InvalidArgument Incorrect psalm unpack parameters (...$args) */
         return call(
-            function(IndexKey $indexKey, IndexValue $value): \Generator
+            function (IndexKey $indexKey, IndexValue $value): \Generator
             {
                 try
                 {
@@ -258,11 +210,6 @@ final class IndexProvider
         );
     }
 
-    /**
-     * @param IndexKey $indexKey
-     *
-     * @return \Generator
-     */
     private function setupMutex(IndexKey $indexKey): \Generator
     {
         $mutexKey = createIndexMutex($indexKey);
@@ -272,11 +219,6 @@ final class IndexProvider
         $this->locks[$mutexKey] = yield $mutex->acquire();
     }
 
-    /**
-     * @param IndexKey $indexKey
-     *
-     * @return \Generator
-     */
     private function releaseMutex(IndexKey $indexKey): \Generator
     {
         $mutexKey = createIndexMutex($indexKey);

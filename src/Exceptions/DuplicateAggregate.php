@@ -19,11 +19,6 @@ use ServiceBus\EventSourcing\AggregateId;
  */
 final class DuplicateAggregate extends \InvalidArgumentException
 {
-    /**
-     * @param AggregateId $id
-     *
-     * @return self
-     */
     public static function create(AggregateId $id): self
     {
         return new self(

@@ -161,7 +161,7 @@ final class EventSourcingProviderTest extends TestCase
     public function flow(): void
     {
         Loop::run(
-            function(): \Generator
+            function (): \Generator
             {
                 $context   = new Context();
                 $aggregate = new TestAggregate(TestAggregateId::new());
@@ -188,7 +188,7 @@ final class EventSourcingProviderTest extends TestCase
         $this->expectException(DuplicateAggregate::class);
 
         Loop::run(
-            function(): \Generator
+            function (): \Generator
             {
                 $id = TestAggregateId::new();
 
@@ -208,7 +208,7 @@ final class EventSourcingProviderTest extends TestCase
     public function successHardDeleteRevert(): void
     {
         Loop::run(
-            function(): \Generator
+            function (): \Generator
             {
                 $context   = new Context();
                 $aggregate = new TestAggregate(TestAggregateId::new());
@@ -257,7 +257,7 @@ final class EventSourcingProviderTest extends TestCase
         $this->expectException(RevertAggregateVersionFailed::class);
 
         Loop::run(
-            function(): \Generator
+            function (): \Generator
             {
                 yield $this->eventSourcingProvider->revert(
                     new TestAggregate(TestAggregateId::new()),
@@ -277,7 +277,7 @@ final class EventSourcingProviderTest extends TestCase
         $this->expectException(RevertAggregateVersionFailed::class);
 
         Loop::run(
-            function(): \Generator
+            function (): \Generator
             {
                 $context   = new Context();
                 $aggregate = new TestAggregate(TestAggregateId::new());

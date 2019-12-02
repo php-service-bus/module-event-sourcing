@@ -32,19 +32,14 @@ use ServiceBus\Storage\Common\Exceptions\UniqueConstraintViolationCheckFailed;
  */
 final class EventSourcingProvider
 {
-    /**
-     * @var EventStreamRepository
-     */
-    private $repository;
+    private EventStreamRepository $repository;
 
     /**
      * List of loaded/added aggregates.
      *
      * @psalm-var array<string, string>
-     *
-     * @var array
      */
-    private $aggregates = [];
+    private array $aggregates = [];
 
     /**
      * Current locks collection.
@@ -53,21 +48,10 @@ final class EventSourcingProvider
      *
      * @var Lock[]
      */
-    private $locks = [];
+    private array $locks = [];
 
-    /**
-     * Mutex creator.
-     *
-     * @var MutexFactory
-     */
-    private $mutexFactory;
+    private MutexFactory $mutexFactory;
 
-    /**
-     * EventSourcingProvider constructor.
-     *
-     * @param EventStreamRepository $repository
-     * @param MutexFactory|null     $mutexFactory
-     */
     public function __construct(EventStreamRepository $repository, ?MutexFactory $mutexFactory = null)
     {
         $this->repository   = $repository;
@@ -77,19 +61,14 @@ final class EventSourcingProvider
     /**
      * Load aggregate.
      *
-     * @noinspection PhpDocRedundantThrowsInspection
-     *
-     * @param AggregateId $id
+     * Returns \ServiceBus\EventSourcing\Aggregate|null
      *
      * @throws \ServiceBus\EventSourcingModule\Exceptions\LoadAggregateFailed
-     *
-     * @return Promise
      */
     public function load(AggregateId $id): Promise
     {
-        /** @psalm-suppress InvalidArgument Incorrect psalm unpack parameters (...$args) */
         return call(
-            function(AggregateId $id): \Generator
+            function (AggregateId $id): \Generator
             {
                 try
                 {
@@ -123,21 +102,13 @@ final class EventSourcingProvider
     /**
      * Save a new aggregate.
      *
-     * @noinspection PhpDocRedundantThrowsInspection
-     *
-     * @param Aggregate         $aggregate
-     * @param ServiceBusContext $context
-     *
      * @throws \ServiceBus\EventSourcingModule\Exceptions\SaveAggregateFailed
      * @throws \ServiceBus\EventSourcingModule\Exceptions\DuplicateAggregate
-     *
-     * @return Promise
      */
     public function save(Aggregate $aggregate, ServiceBusContext $context): Promise
     {
-        /** @psalm-suppress InvalidArgument Incorrect psalm unpack parameters (...$args) */
         return call(
-            function(Aggregate $aggregate, ServiceBusContext $context): \Generator
+            function (Aggregate $aggregate, ServiceBusContext $context): \Generator
             {
                 try
                 {
@@ -194,21 +165,14 @@ final class EventSourcingProvider
     /**
      * Revert aggregate to specified version.
      *
+     * Returns \ServiceBus\EventSourcing\Aggregate
+     *
      * Mode options:
      *   - 1 (EventStreamRepository::REVERT_MODE_SOFT_DELETE): Mark tail events as deleted (soft deletion). There may
      *   be version conflicts in some situations
      *   - 2 (EventStreamRepository::REVERT_MODE_DELETE): Removes tail events from the database (the best option)
      *
-     * @noinspection   PhpDocRedundantThrowsInspection
-     * @psalm-suppress MixedTypeCoercion Incorrect resolving the value of the promise
-     *
-     * @param Aggregate $aggregate
-     * @param int       $toVersion
-     * @param int       $mode
-     *
      * @throws \ServiceBus\EventSourcingModule\Exceptions\RevertAggregateVersionFailed
-     *
-     * @return Promise<\ServiceBus\EventSourcing\Aggregate>
      */
     public function revert(
         Aggregate $aggregate,
@@ -219,7 +183,7 @@ final class EventSourcingProvider
 
         /** @psalm-suppress InvalidArgument Incorrect psalm unpack parameters (...$args) */
         return call(
-            function(Aggregate $aggregate, int $toVersion, int $mode): \Generator
+            function (Aggregate $aggregate, int $toVersion, int $mode): \Generator
             {
                 yield from $this->setupMutex($aggregate->id());
 
@@ -245,11 +209,6 @@ final class EventSourcingProvider
         );
     }
 
-    /**
-     * @param AggregateId $id
-     *
-     * @return \Generator
-     */
     private function setupMutex(AggregateId $id): \Generator
     {
         $mutexKey = createAggregateMutexKey($id);
@@ -263,11 +222,6 @@ final class EventSourcingProvider
         }
     }
 
-    /**
-     * @param AggregateId $id
-     *
-     * @return \Generator
-     */
     private function releaseMutex(AggregateId $id): \Generator
     {
         $mutexKey = createAggregateMutexKey($id);

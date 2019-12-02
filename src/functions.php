@@ -17,10 +17,6 @@ use ServiceBus\EventSourcing\Indexes\IndexKey;
 
 /**
  * @internal
- *
- * @param AggregateId $id
- *
- * @return string
  */
 function createAggregateMutexKey(AggregateId $id): string
 {
@@ -29,10 +25,6 @@ function createAggregateMutexKey(AggregateId $id): string
 
 /**
  * @internal
- *
- * @param IndexKey $indexKey
- *
- * @return string
  */
 function createIndexMutex(IndexKey $indexKey): string
 {

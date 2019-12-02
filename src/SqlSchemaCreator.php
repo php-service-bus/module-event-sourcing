@@ -35,20 +35,10 @@ final class SqlSchemaCreator
         '/src/Indexes/Store/schema/event_sourcing_indexes.sql'        => false,
     ];
 
-    /**
-     * @var DatabaseAdapter
-     */
-    private $adapter;
+    private DatabaseAdapter $adapter;
 
-    /**
-     * @var string
-     */
-    private $rootDirectoryPath;
+    private string $rootDirectoryPath;
 
-    /**
-     * @param DatabaseAdapter $adapter
-     * @param string          $rootDirectoryPath
-     */
     public function __construct(DatabaseAdapter $adapter, string $rootDirectoryPath)
     {
         $this->adapter           = $adapter;
@@ -57,14 +47,11 @@ final class SqlSchemaCreator
 
     /**
      * Import fixtures.
-     *
-     * @return Promise
      */
     public function import(): Promise
     {
-        /** @psalm-suppress InvalidArgument Incorrect psalm unpack parameters (...$args) */
         return call(
-            function(array $fixtures): \Generator
+            function (array $fixtures): \Generator
             {
                 /**
                  * @var string $filePath

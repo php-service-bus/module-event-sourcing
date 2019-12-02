@@ -36,41 +36,18 @@ use Symfony\Component\DependencyInjection\Reference;
  */
 final class EventSourcingModule implements ServiceBusModule
 {
-    /**
-     * @var string
-     */
-    private $eventStoreServiceId;
+    private string $eventStoreServiceId;
 
-    /**
-     * @var string
-     */
-    private $snapshotStoreServiceId;
+    private string $snapshotStoreServiceId;
 
-    /**
-     * @var string
-     */
-    private $indexerStore;
+    private string $indexerStore;
 
-    /**
-     * @var string|null
-     */
-    private $databaseAdapterServiceId;
+    private ?string $databaseAdapterServiceId= null;
 
-    /**
-     * @var string|null
-     */
-    private $customEventSerializerServiceId;
+    private ?string $customEventSerializerServiceId= null;
 
-    /**
-     * @var string|null
-     */
-    private $customSnapshotStrategyServiceId;
+    private ?string $customSnapshotStrategyServiceId = null;
 
-    /**
-     * @param string $databaseAdapterServiceId
-     *
-     * @return self
-     */
     public static function withSqlStorage(string $databaseAdapterServiceId): self
     {
         $self = new self(
@@ -84,11 +61,6 @@ final class EventSourcingModule implements ServiceBusModule
         return $self;
     }
 
-    /**
-     * @param string $eventSerializerServiceId
-     *
-     * @return $this
-     */
     public function withCustomEventSerializer(string $eventSerializerServiceId): self
     {
         $this->customEventSerializerServiceId = $eventSerializerServiceId;
@@ -96,11 +68,6 @@ final class EventSourcingModule implements ServiceBusModule
         return $this;
     }
 
-    /**
-     * @param string $snapshotStrategyServiceId
-     *
-     * @return $this
-     */
     public function withCustomSnapshotStrategy(string $snapshotStrategyServiceId): self
     {
         $this->customSnapshotStrategyServiceId = $snapshotStrategyServiceId;
@@ -131,9 +98,6 @@ final class EventSourcingModule implements ServiceBusModule
         $this->registerIndexer($containerBuilder);
     }
 
-    /**
-     * @param ContainerBuilder $containerBuilder
-     */
     private function registerMutexFactory(ContainerBuilder $containerBuilder): void
     {
         if (false === $containerBuilder->hasDefinition(MutexFactory::class))
@@ -144,11 +108,6 @@ final class EventSourcingModule implements ServiceBusModule
         }
     }
 
-    /**
-     * @param ContainerBuilder $containerBuilder
-     *
-     * @return void
-     */
     private function registerIndexer(ContainerBuilder $containerBuilder): void
     {
         /** @psalm-suppress PossiblyNullArgument */
@@ -163,11 +122,6 @@ final class EventSourcingModule implements ServiceBusModule
         ]);
     }
 
-    /**
-     * @param ContainerBuilder $containerBuilder
-     *
-     * @return void
-     */
     private function registerEventSourcingProvider(ContainerBuilder $containerBuilder): void
     {
         $serializer = null;
@@ -207,11 +161,6 @@ final class EventSourcingModule implements ServiceBusModule
         ]);
     }
 
-    /**
-     * @param ContainerBuilder $containerBuilder
-     *
-     * @return void
-     */
     private function registerSnapshotter(ContainerBuilder $containerBuilder): void
     {
         if (null === $this->customSnapshotStrategyServiceId)

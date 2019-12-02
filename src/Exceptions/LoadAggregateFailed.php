@@ -17,11 +17,6 @@ namespace ServiceBus\EventSourcingModule\Exceptions;
  */
 final class LoadAggregateFailed extends \RuntimeException
 {
-    /**
-     * @param \Throwable $throwable
-     *
-     * @return self
-     */
     public static function fromThrowable(\Throwable $throwable): self
     {
         return new self(

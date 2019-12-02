@@ -114,8 +114,8 @@ final class IndexProviderTest extends TestCase
      */
     public function save(): void
     {
-        $index = IndexKey::create(__CLASS__, 'testKey');
-        $value = IndexValue::create(__METHOD__);
+        $index = new IndexKey(__CLASS__, 'testKey');
+        $value = new IndexValue(__METHOD__);
 
         /** @var bool $result */
         $result = wait($this->indexProvider->add($index, $value));
@@ -139,8 +139,8 @@ final class IndexProviderTest extends TestCase
      */
     public function saveDuplicate(): void
     {
-        $index = IndexKey::create(__CLASS__, 'testKey');
-        $value = IndexValue::create(__METHOD__);
+        $index = new IndexKey(__CLASS__, 'testKey');
+        $value = new  IndexValue(__METHOD__);
 
         /** @var bool $result */
         $result = wait($this->indexProvider->add($index, $value));
@@ -164,12 +164,12 @@ final class IndexProviderTest extends TestCase
      */
     public function update(): void
     {
-        $index = IndexKey::create(__CLASS__, 'testKey');
-        $value = IndexValue::create(__METHOD__);
+        $index = new IndexKey(__CLASS__, 'testKey');
+        $value = new IndexValue(__METHOD__);
 
         wait($this->indexProvider->add($index, $value));
 
-        $newValue = IndexValue::create('qwerty');
+        $newValue = new IndexValue('qwerty');
 
         wait($this->indexProvider->update($index, $newValue));
 
@@ -189,8 +189,8 @@ final class IndexProviderTest extends TestCase
      */
     public function remove(): void
     {
-        $index = IndexKey::create(__CLASS__, 'testKey');
-        $value = IndexValue::create(__METHOD__);
+        $index = new IndexKey(__CLASS__, 'testKey');
+        $value = new IndexValue(__METHOD__);
 
         wait($this->indexProvider->add($index, $value));
         wait($this->indexProvider->remove($index));
@@ -207,8 +207,8 @@ final class IndexProviderTest extends TestCase
      */
     public function has(): void
     {
-        $index = IndexKey::create(__CLASS__, 'testKey');
-        $value = IndexValue::create(__METHOD__);
+        $index = new IndexKey(__CLASS__, 'testKey');
+        $value = new IndexValue(__METHOD__);
 
         static::assertFalse(wait($this->indexProvider->has($index)));
 
