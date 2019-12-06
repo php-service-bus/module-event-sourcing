@@ -35,9 +35,11 @@ final class SqlSchemaCreator
         '/src/Indexes/Store/schema/event_sourcing_indexes.sql'        => false,
     ];
 
-    private DatabaseAdapter $adapter;
+    /** @var DatabaseAdapter */
+    private $adapter;
 
-    private string $rootDirectoryPath;
+    /** @var string */
+    private $rootDirectoryPath;
 
     public function __construct(DatabaseAdapter $adapter, string $rootDirectoryPath)
     {

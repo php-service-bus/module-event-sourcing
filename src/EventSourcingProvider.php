@@ -32,14 +32,17 @@ use ServiceBus\Storage\Common\Exceptions\UniqueConstraintViolationCheckFailed;
  */
 final class EventSourcingProvider
 {
-    private EventStreamRepository $repository;
+    /** @var EventStreamRepository */
+    private $repository;
 
     /**
      * List of loaded/added aggregates.
      *
      * @psalm-var array<string, string>
+     *
+     * @var string[]
      */
-    private array $aggregates = [];
+    private $aggregates = [];
 
     /**
      * Current locks collection.
@@ -48,9 +51,10 @@ final class EventSourcingProvider
      *
      * @var Lock[]
      */
-    private array $locks = [];
+    private $locks = [];
 
-    private MutexFactory $mutexFactory;
+    /** @var MutexFactory */
+    private $mutexFactory;
 
     public function __construct(EventStreamRepository $repository, ?MutexFactory $mutexFactory = null)
     {

@@ -28,7 +28,8 @@ use ServiceBus\Storage\Common\Exceptions\UniqueConstraintViolationCheckFailed;
  */
 final class IndexProvider
 {
-    private IndexStore $store;
+    /** @var IndexStore  */
+    private $store;
 
     /**
      * Current locks collection.
@@ -37,14 +38,14 @@ final class IndexProvider
      *
      * @var Lock[]
      */
-    private array $locks = [];
+    private $locks = [];
 
     /**
      * Mutex creator.
      *
      * @var MutexFactory
      */
-    private MutexFactory $mutexFactory;
+    private $mutexFactory;
 
     public function __construct(IndexStore $store, ?MutexFactory $mutexFactory = null)
     {

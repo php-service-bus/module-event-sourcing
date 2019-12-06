@@ -36,17 +36,23 @@ use Symfony\Component\DependencyInjection\Reference;
  */
 final class EventSourcingModule implements ServiceBusModule
 {
-    private string $eventStoreServiceId;
+    /** @var string  */
+    private $eventStoreServiceId;
 
-    private string $snapshotStoreServiceId;
+    /** @var string  */
+    private $snapshotStoreServiceId;
 
-    private string $indexerStore;
+    /** @var string  */
+    private $indexerStore;
 
-    private ?string $databaseAdapterServiceId= null;
+    /** @var string|null  */
+    private $databaseAdapterServiceId= null;
 
-    private ?string $customEventSerializerServiceId= null;
+    /** @var string|null  */
+    private $customEventSerializerServiceId= null;
 
-    private ?string $customSnapshotStrategyServiceId = null;
+    /** @var string|null  */
+    private $customSnapshotStrategyServiceId = null;
 
     public static function withSqlStorage(string $databaseAdapterServiceId): self
     {
