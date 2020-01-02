@@ -12,6 +12,8 @@ declare(strict_types = 1);
 
 namespace ServiceBus\EventSourcingModule;
 
+use ServiceBus\Mutex\InMemoryLockCollection;
+use ServiceBus\Mutex\LockCollection;
 use function Amp\call;
 use Amp\Promise;
 use ServiceBus\Common\Context\ServiceBusContext;
@@ -44,22 +46,20 @@ final class EventSourcingProvider
      */
     private $aggregates = [];
 
-    /**
-     * Current locks collection.
-     *
-     * @psalm-var array<string, \ServiceBus\Mutex\Lock>
-     *
-     * @var Lock[]
-     */
-    private $locks = [];
-
     /** @var MutexFactory */
     private $mutexFactory;
 
-    public function __construct(EventStreamRepository $repository, ?MutexFactory $mutexFactory = null)
-    {
-        $this->repository   = $repository;
-        $this->mutexFactory = $mutexFactory ?? new InMemoryMutexFactory();
+    /** @var LockCollection */
+    private $lockCollection;
+
+    public function __construct(
+        EventStreamRepository $repository,
+        ?MutexFactory $mutexFactory = null,
+        ?LockCollection $lockCollection = null
+    ) {
+        $this->repository     = $repository;
+        $this->mutexFactory   = $mutexFactory ?? new InMemoryMutexFactory();
+        $this->lockCollection = $lockCollection ?? new InMemoryLockCollection();
     }
 
     /**
@@ -72,7 +72,7 @@ final class EventSourcingProvider
     public function load(AggregateId $id): Promise
     {
         return call(
-            function (AggregateId $id): \Generator
+            function () use ($id): \Generator
             {
                 try
                 {
@@ -81,7 +81,7 @@ final class EventSourcingProvider
                     /** @var Aggregate|null $aggregate */
                     $aggregate = yield $this->repository->load($id);
 
-                    if (null !== $aggregate)
+                    if ($aggregate !== null)
                     {
                         $this->aggregates[$aggregate->id()->toString()] = \get_class($aggregate);
                     }
@@ -98,8 +98,7 @@ final class EventSourcingProvider
 
                     throw LoadAggregateFailed::fromThrowable($throwable);
                 }
-            },
-            $id
+            }
         );
     }
 
@@ -112,12 +111,12 @@ final class EventSourcingProvider
     public function save(Aggregate $aggregate, ServiceBusContext $context): Promise
     {
         return call(
-            function (Aggregate $aggregate, ServiceBusContext $context): \Generator
+            function () use ($aggregate, $context): \Generator
             {
                 try
                 {
                     /** The aggregate hasn't been loaded before, which means it is new */
-                    if (false === isset($this->aggregates[$aggregate->id()->toString()]))
+                    if (isset($this->aggregates[$aggregate->id()->toString()]) === false)
                     {
                         /**
                          * @psalm-var  array<int, object> $events
@@ -160,9 +159,7 @@ final class EventSourcingProvider
                 {
                     yield from $this->releaseMutex($aggregate->id());
                 }
-            },
-            $aggregate,
-            $context
+            }
         );
     }
 
@@ -187,7 +184,7 @@ final class EventSourcingProvider
 
         /** @psalm-suppress InvalidArgument Incorrect psalm unpack parameters (...$args) */
         return call(
-            function (Aggregate $aggregate, int $toVersion, int $mode): \Generator
+            function () use ($aggregate, $toVersion, $mode): \Generator
             {
                 yield from $this->setupMutex($aggregate->id());
 
@@ -206,10 +203,7 @@ final class EventSourcingProvider
                 {
                     yield from $this->releaseMutex($aggregate->id());
                 }
-            },
-            $aggregate,
-            $toVersion,
-            $mode
+            }
         );
     }
 
@@ -217,12 +211,17 @@ final class EventSourcingProvider
     {
         $mutexKey = createAggregateMutexKey($id);
 
-        if (false === isset($this->locks[$mutexKey]))
+        /** @var bool $hasLock */
+        $hasLock = yield $this->lockCollection->has($mutexKey);
+
+        if ($hasLock === false)
         {
             $mutex = $this->mutexFactory->create($mutexKey);
 
-            /** @psalm-suppress InvalidPropertyAssignmentValue */
-            $this->locks[$mutexKey] = yield $mutex->acquire();
+            /** @var \ServiceBus\Mutex\Lock $lock */
+            $lock = yield $mutex->acquire();
+
+            yield $this->lockCollection->place($mutexKey, $lock);
         }
     }
 
@@ -230,14 +229,12 @@ final class EventSourcingProvider
     {
         $mutexKey = createAggregateMutexKey($id);
 
-        if (true === isset($this->locks[$mutexKey]))
+        /** @var Lock|null $lock */
+        $lock = yield $this->lockCollection->extract($mutexKey);
+
+        if ($lock !== null)
         {
-            /** @var Lock $lock */
-            $lock = $this->locks[$mutexKey];
-
             yield $lock->release();
-
-            unset($this->locks[$mutexKey]);
         }
     }
 }

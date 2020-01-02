@@ -12,6 +12,8 @@ declare(strict_types = 1);
 
 namespace ServiceBus\EventSourcingModule;
 
+use ServiceBus\Mutex\InMemoryLockCollection;
+use ServiceBus\Mutex\LockCollection;
 use function Amp\call;
 use Amp\Promise;
 use ServiceBus\EventSourcing\Indexes\IndexKey;
@@ -28,17 +30,11 @@ use ServiceBus\Storage\Common\Exceptions\UniqueConstraintViolationCheckFailed;
  */
 final class IndexProvider
 {
-    /** @var IndexStore  */
+    /** @var IndexStore */
     private $store;
 
-    /**
-     * Current locks collection.
-     *
-     * @psalm-var array<string, \ServiceBus\Mutex\Lock>
-     *
-     * @var Lock[]
-     */
-    private $locks = [];
+    /** @var LockCollection */
+    private $lockCollection;
 
     /**
      * Mutex creator.
@@ -47,10 +43,14 @@ final class IndexProvider
      */
     private $mutexFactory;
 
-    public function __construct(IndexStore $store, ?MutexFactory $mutexFactory = null)
-    {
-        $this->store        = $store;
-        $this->mutexFactory = $mutexFactory ?? new InMemoryMutexFactory();
+    public function __construct(
+        IndexStore $store,
+        ?MutexFactory $mutexFactory = null,
+        ?LockCollection $lockCollection = null
+    ) {
+        $this->store          = $store;
+        $this->mutexFactory   = $mutexFactory ?? new InMemoryMutexFactory();
+        $this->lockCollection = $lockCollection ?? new InMemoryLockCollection();
     }
 
     /**
@@ -63,7 +63,7 @@ final class IndexProvider
     public function get(IndexKey $indexKey): Promise
     {
         return call(
-            function (IndexKey $indexKey): \Generator
+            function () use ($indexKey): \Generator
             {
                 try
                 {
@@ -82,8 +82,7 @@ final class IndexProvider
                 {
                     yield from $this->releaseMutex($indexKey);
                 }
-            },
-            $indexKey
+            }
         );
     }
 
@@ -95,21 +94,20 @@ final class IndexProvider
     public function has(IndexKey $indexKey): Promise
     {
         return call(
-            function (IndexKey $indexKey): \Generator
+            function () use ($indexKey): \Generator
             {
                 try
                 {
                     /** @var IndexValue|null $value */
                     $value = yield $this->store->find($indexKey);
 
-                    return null !== $value;
+                    return $value !== null;
                 }
                 catch (\Throwable $throwable)
                 {
                     throw IndexOperationFailed::fromThrowable($throwable);
                 }
-            },
-            $indexKey
+            }
         );
     }
 
@@ -121,7 +119,7 @@ final class IndexProvider
     public function add(IndexKey $indexKey, IndexValue $value): Promise
     {
         return call(
-            function (IndexKey $indexKey, IndexValue $value): \Generator
+            function () use ($indexKey, $value): \Generator
             {
                 try
                 {
@@ -130,7 +128,7 @@ final class IndexProvider
                     /** @var int $affectedRows */
                     $affectedRows = yield $this->store->add($indexKey, $value);
 
-                    return 0 !== $affectedRows;
+                    return $affectedRows !== 0;
                 }
                 catch (UniqueConstraintViolationCheckFailed $exception)
                 {
@@ -144,9 +142,7 @@ final class IndexProvider
                 {
                     yield from $this->releaseMutex($indexKey);
                 }
-            },
-            $indexKey,
-            $value
+            }
         );
     }
 
@@ -158,7 +154,7 @@ final class IndexProvider
     public function remove(IndexKey $indexKey): Promise
     {
         return call(
-            function (IndexKey $indexKey): \Generator
+            function () use ($indexKey): \Generator
             {
                 try
                 {
@@ -173,8 +169,7 @@ final class IndexProvider
                 {
                     yield from $this->releaseMutex($indexKey);
                 }
-            },
-            $indexKey
+            }
         );
     }
 
@@ -186,7 +181,7 @@ final class IndexProvider
     public function update(IndexKey $indexKey, IndexValue $value): Promise
     {
         return call(
-            function (IndexKey $indexKey, IndexValue $value): \Generator
+            function () use ($indexKey, $value): \Generator
             {
                 try
                 {
@@ -195,7 +190,7 @@ final class IndexProvider
                     /** @var int $affectedRows */
                     $affectedRows = yield $this->store->update($indexKey, $value);
 
-                    return 0 !== $affectedRows;
+                    return $affectedRows !== 0;
                 }
                 catch (\Throwable $throwable)
                 {
@@ -205,33 +200,38 @@ final class IndexProvider
                 {
                     yield from $this->releaseMutex($indexKey);
                 }
-            },
-            $indexKey,
-            $value
+            }
         );
     }
 
     private function setupMutex(IndexKey $indexKey): \Generator
     {
         $mutexKey = createIndexMutex($indexKey);
-        $mutex    = $this->mutexFactory->create($mutexKey);
 
-        /** @psalm-suppress InvalidPropertyAssignmentValue */
-        $this->locks[$mutexKey] = yield $mutex->acquire();
+        /** @var bool $hasLock */
+        $hasLock = yield $this->lockCollection->has($mutexKey);
+
+        if ($hasLock === false)
+        {
+            $mutex = $this->mutexFactory->create($mutexKey);
+
+            /** @var \ServiceBus\Mutex\Lock $lock */
+            $lock = yield $mutex->acquire();
+
+            yield $this->lockCollection->place($mutexKey, $lock);
+        }
     }
 
     private function releaseMutex(IndexKey $indexKey): \Generator
     {
         $mutexKey = createIndexMutex($indexKey);
 
-        if (true === isset($this->locks[$mutexKey]))
+        /** @var Lock|null $lock */
+        $lock = yield $this->lockCollection->extract($mutexKey);
+
+        if ($lock !== null)
         {
-            /** @var Lock $lock */
-            $lock = $this->locks[$mutexKey];
-
             yield $lock->release();
-
-            unset($this->locks[$mutexKey]);
         }
     }
 }

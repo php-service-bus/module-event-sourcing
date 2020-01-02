@@ -25,7 +25,9 @@ use ServiceBus\EventSourcing\Snapshots\Store\SnapshotStore;
 use ServiceBus\EventSourcing\Snapshots\Store\SqlSnapshotStore;
 use ServiceBus\EventSourcing\Snapshots\Triggers\SnapshotTrigger;
 use ServiceBus\EventSourcing\Snapshots\Triggers\SnapshotVersionTrigger;
+use ServiceBus\Mutex\InMemoryLockCollection;
 use ServiceBus\Mutex\InMemoryMutexFactory;
+use ServiceBus\Mutex\LockCollection;
 use ServiceBus\Mutex\MutexFactory;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -98,10 +100,19 @@ final class EventSourcingModule implements ServiceBusModule
             ]);
         }
 
+        $this->registerMutexCollection($containerBuilder);
         $this->registerMutexFactory($containerBuilder);
         $this->registerSnapshotter($containerBuilder);
         $this->registerEventSourcingProvider($containerBuilder);
         $this->registerIndexer($containerBuilder);
+    }
+
+    private function registerMutexCollection(ContainerBuilder $containerBuilder): void
+    {
+        if ($containerBuilder->hasDefinition(LockCollection::class) === false)
+        {
+            $containerBuilder->setDefinition(LockCollection::class, new Definition(InMemoryLockCollection::class));
+        }
     }
 
     private function registerMutexFactory(ContainerBuilder $containerBuilder): void
@@ -123,6 +134,7 @@ final class EventSourcingModule implements ServiceBusModule
                 [
                     new Reference($this->indexerStore),
                     new Reference(MutexFactory::class),
+                    new Reference(LockCollection::class)
                 ]
             ),
         ]);
@@ -162,6 +174,7 @@ final class EventSourcingModule implements ServiceBusModule
                 [
                     new Reference(EventStreamRepository::class),
                     new Reference(MutexFactory::class),
+                    new Reference(LockCollection::class)
                 ]
             ),
         ]);
