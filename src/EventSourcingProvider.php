@@ -12,8 +12,7 @@ declare(strict_types = 1);
 
 namespace ServiceBus\EventSourcingModule;
 
-use ServiceBus\Mutex\InMemoryLockCollection;
-use ServiceBus\Mutex\LockCollection;
+use ServiceBus\Mutex\InMemory\InMemoryMutexFactory;
 use function Amp\call;
 use Amp\Promise;
 use ServiceBus\Common\Context\ServiceBusContext;
@@ -24,7 +23,6 @@ use ServiceBus\EventSourcingModule\Exceptions\DuplicateAggregate;
 use ServiceBus\EventSourcingModule\Exceptions\LoadAggregateFailed;
 use ServiceBus\EventSourcingModule\Exceptions\RevertAggregateVersionFailed;
 use ServiceBus\EventSourcingModule\Exceptions\SaveAggregateFailed;
-use ServiceBus\Mutex\InMemoryMutexFactory;
 use ServiceBus\Mutex\Lock;
 use ServiceBus\Mutex\MutexFactory;
 use ServiceBus\Storage\Common\Exceptions\UniqueConstraintViolationCheckFailed;
@@ -49,17 +47,13 @@ final class EventSourcingProvider
     /** @var MutexFactory */
     private $mutexFactory;
 
-    /** @var LockCollection */
-    private $lockCollection;
+    /** @var Lock[] */
+    private $lockCollection = [];
 
-    public function __construct(
-        EventStreamRepository $repository,
-        ?MutexFactory $mutexFactory = null,
-        ?LockCollection $lockCollection = null
-    ) {
-        $this->repository     = $repository;
-        $this->mutexFactory   = $mutexFactory ?? new InMemoryMutexFactory();
-        $this->lockCollection = $lockCollection ?? new InMemoryLockCollection();
+    public function __construct(EventStreamRepository $repository, ?MutexFactory $mutexFactory = null)
+    {
+        $this->repository   = $repository;
+        $this->mutexFactory = $mutexFactory ?? new InMemoryMutexFactory();
     }
 
     /**
@@ -211,17 +205,14 @@ final class EventSourcingProvider
     {
         $mutexKey = createAggregateMutexKey($id);
 
-        /** @var bool $hasLock */
-        $hasLock = yield $this->lockCollection->has($mutexKey);
-
-        if ($hasLock === false)
+        if (\array_key_exists($mutexKey, $this->lockCollection) === false)
         {
             $mutex = $this->mutexFactory->create($mutexKey);
 
-            /** @var \ServiceBus\Mutex\Lock $lock */
+            /** @var Lock $lock */
             $lock = yield $mutex->acquire();
 
-            yield $this->lockCollection->place($mutexKey, $lock);
+            $this->lockCollection[$mutexKey] = $lock;
         }
     }
 
@@ -229,11 +220,13 @@ final class EventSourcingProvider
     {
         $mutexKey = createAggregateMutexKey($id);
 
-        /** @var Lock|null $lock */
-        $lock = yield $this->lockCollection->extract($mutexKey);
-
-        if ($lock !== null)
+        if (\array_key_exists($mutexKey, $this->lockCollection) === true)
         {
+            /** @var Lock $lock */
+            $lock = $this->lockCollection[$mutexKey];
+
+            unset($this->lockCollection[$mutexKey]);
+
             yield $lock->release();
         }
     }

@@ -12,15 +12,13 @@ declare(strict_types = 1);
 
 namespace ServiceBus\EventSourcingModule;
 
-use ServiceBus\Mutex\InMemoryLockCollection;
-use ServiceBus\Mutex\LockCollection;
+use ServiceBus\Mutex\InMemory\InMemoryMutexFactory;
 use function Amp\call;
 use Amp\Promise;
 use ServiceBus\EventSourcing\Indexes\IndexKey;
 use ServiceBus\EventSourcing\Indexes\IndexValue;
 use ServiceBus\EventSourcing\Indexes\Store\IndexStore;
 use ServiceBus\EventSourcingModule\Exceptions\IndexOperationFailed;
-use ServiceBus\Mutex\InMemoryMutexFactory;
 use ServiceBus\Mutex\Lock;
 use ServiceBus\Mutex\MutexFactory;
 use ServiceBus\Storage\Common\Exceptions\UniqueConstraintViolationCheckFailed;
@@ -33,9 +31,6 @@ final class IndexProvider
     /** @var IndexStore */
     private $store;
 
-    /** @var LockCollection */
-    private $lockCollection;
-
     /**
      * Mutex creator.
      *
@@ -43,14 +38,13 @@ final class IndexProvider
      */
     private $mutexFactory;
 
-    public function __construct(
-        IndexStore $store,
-        ?MutexFactory $mutexFactory = null,
-        ?LockCollection $lockCollection = null
-    ) {
-        $this->store          = $store;
-        $this->mutexFactory   = $mutexFactory ?? new InMemoryMutexFactory();
-        $this->lockCollection = $lockCollection ?? new InMemoryLockCollection();
+    /** @var Lock[] */
+    private $lockCollection = [];
+
+    public function __construct(IndexStore $store, ?MutexFactory $mutexFactory = null)
+    {
+        $this->store        = $store;
+        $this->mutexFactory = $mutexFactory ?? new InMemoryMutexFactory();
     }
 
     /**
@@ -208,17 +202,14 @@ final class IndexProvider
     {
         $mutexKey = createIndexMutex($indexKey);
 
-        /** @var bool $hasLock */
-        $hasLock = yield $this->lockCollection->has($mutexKey);
-
-        if ($hasLock === false)
+        if (\array_key_exists($mutexKey, $this->lockCollection) === false)
         {
             $mutex = $this->mutexFactory->create($mutexKey);
 
-            /** @var \ServiceBus\Mutex\Lock $lock */
+            /** @var Lock $lock */
             $lock = yield $mutex->acquire();
 
-            yield $this->lockCollection->place($mutexKey, $lock);
+            $this->lockCollection[$mutexKey] = $lock;
         }
     }
 
@@ -226,11 +217,13 @@ final class IndexProvider
     {
         $mutexKey = createIndexMutex($indexKey);
 
-        /** @var Lock|null $lock */
-        $lock = yield $this->lockCollection->extract($mutexKey);
-
-        if ($lock !== null)
+        if (\array_key_exists($mutexKey, $this->lockCollection) === true)
         {
+            /** @var Lock $lock */
+            $lock = $this->lockCollection[$mutexKey];
+
+            unset($this->lockCollection[$mutexKey]);
+
             yield $lock->release();
         }
     }
