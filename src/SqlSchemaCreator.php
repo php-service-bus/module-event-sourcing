@@ -70,7 +70,7 @@ final class SqlSchemaCreator
 
                     foreach ($queries as $query)
                     {
-                        if ('' !== $query)
+                        if ($query !== '')
                         {
                             yield $this->adapter->execute($query);
                         }

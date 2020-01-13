@@ -59,10 +59,10 @@ final class IndexProvider
         return call(
             function () use ($indexKey): \Generator
             {
+                yield from $this->setupMutex($indexKey);
+
                 try
                 {
-                    yield from $this->setupMutex($indexKey);
-
                     /** @var IndexValue|null $value */
                     $value = yield $this->store->find($indexKey);
 
@@ -115,10 +115,10 @@ final class IndexProvider
         return call(
             function () use ($indexKey, $value): \Generator
             {
+                yield from $this->setupMutex($indexKey);
+
                 try
                 {
-                    yield from $this->setupMutex($indexKey);
-
                     /** @var int $affectedRows */
                     $affectedRows = yield $this->store->add($indexKey, $value);
 
@@ -150,9 +150,10 @@ final class IndexProvider
         return call(
             function () use ($indexKey): \Generator
             {
+                yield from $this->setupMutex($indexKey);
+
                 try
                 {
-                    yield from $this->setupMutex($indexKey);
                     yield $this->store->delete($indexKey);
                 }
                 catch (\Throwable $throwable)
@@ -177,10 +178,10 @@ final class IndexProvider
         return call(
             function () use ($indexKey, $value): \Generator
             {
+                yield from $this->setupMutex($indexKey);
+
                 try
                 {
-                    yield from $this->setupMutex($indexKey);
-
                     /** @var int $affectedRows */
                     $affectedRows = yield $this->store->update($indexKey, $value);
 

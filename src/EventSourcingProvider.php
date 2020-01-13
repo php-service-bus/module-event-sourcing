@@ -68,10 +68,10 @@ final class EventSourcingProvider
         return call(
             function () use ($id): \Generator
             {
+                yield from $this->setupMutex($id);
+
                 try
                 {
-                    yield from $this->setupMutex($id);
-
                     /** @var Aggregate|null $aggregate */
                     $aggregate = yield $this->repository->load($id);
 
@@ -79,18 +79,16 @@ final class EventSourcingProvider
                     {
                         $this->aggregates[$aggregate->id()->toString()] = \get_class($aggregate);
                     }
-                    else
-                    {
-                        yield from $this->releaseMutex($id);
-                    }
 
                     return $aggregate;
                 }
                 catch (\Throwable $throwable)
                 {
-                    yield from $this->releaseMutex($id);
-
                     throw LoadAggregateFailed::fromThrowable($throwable);
+                }
+                finally
+                {
+                    yield from $this->releaseMutex($id);
                 }
             }
         );
